@@ -1,0 +1,30 @@
+TODO:
+    1: Store hitboxes well for both moves, the player and the dummy - DONE
+    2: Disable LEDs with this EEPROM flag: SYS_FLAG_SHOW_LOGO_LEDS (How can I write to EEPROM with the arduboy2 libary?)
+
+    3: Implement dummy recovery period after a combo has ended
+    4: Implement generic-esque code for executing moves (ties in with the buffer)
+
+    5: Implement the buffer (input buffer)
+    6: Implement support for special moves
+
+
+
+Player moves:
+5a:     Quick jab
+2a:     Quick kick
+
+5b:     Heavy punch
+2b:     Low sweep
+
+236a:   Fireball
+236b:   Beam
+
+a+b:    Vanish (teleport kick)
+
+214a:   Luigi rocket (launch yourself forward)
+214b:   Diagonal handstand launcher
+
+
+
+j.a:    t.b.d.
