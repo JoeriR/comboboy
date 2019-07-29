@@ -3,9 +3,10 @@
 
 #include <Arduino.h>
 
-#include "player.h"
 #include "dummy.h"
 #include "move.h"
+#include "player.h"
+
 
 // Functions
 void initGame();
@@ -21,7 +22,7 @@ extern uint8_t hitStunDecay;
 
 extern Player player;
 
-extern Move fiveA; 
+extern Move fiveA;
 
 extern Dummy dummy;
 

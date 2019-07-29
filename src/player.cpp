@@ -4,6 +4,7 @@
 #include "player.h"
 #include "spriteData.h"
 
+
 void playerSetIdle(Player *player) {
     player->currentMove = nullptr;
     player->currentMoveFrameCounter = 0;

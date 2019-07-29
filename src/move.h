@@ -1,13 +1,13 @@
 #ifndef MOVE_H
 #define MOVE_H
 
-#include <Arduino.h>
 #include "hitbox.h"
+#include <Arduino.h>
 
-enum class MoveState {Startup, Active, Recovery, Finished};
 
-typedef struct Move
-{
+enum class MoveState { Startup, Active, Recovery, Finished };
+
+typedef struct Move {
     const uint8_t startupFrames;
     const uint8_t activeFrames;
     const uint8_t recoveryFrames;
