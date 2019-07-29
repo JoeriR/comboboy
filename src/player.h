@@ -11,7 +11,7 @@ typedef struct Player
 {
     uint8_t x;
     uint8_t y;
-    Move *currentMove;
+    Move const *currentMove;
     uint8_t currentMoveFrameCounter;
     PlayerState state;
     uint8_t const *sprite;

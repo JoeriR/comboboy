@@ -3,7 +3,7 @@
 
 #include "move.h"
 
-MoveState getMoveState(Move *move, uint8_t currentFrame) {
+MoveState getMoveState(Move const *move, uint8_t currentFrame) {
     if (currentFrame < move->startupFrames)
         return MoveState::Startup;
     else if (currentFrame < move->startupFrames + move->activeFrames)

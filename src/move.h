@@ -19,6 +19,6 @@ typedef struct Move
     const ConstHitbox hitboxData;
 } Move;
 
-MoveState getMoveState(Move *move, uint8_t currentFrame);
+MoveState getMoveState(Move const *move, uint8_t currentFrame);
 
 #endif
