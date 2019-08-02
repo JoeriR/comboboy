@@ -108,8 +108,8 @@ void loop() {
     arduboy.setCursor(2, 2);
     arduboy.write("Comboboy WIP - Joeri");
 
-    ardbitmap.drawBitmap(player.x, player.y, player.sprite, 16, 24, WHITE, ALIGN_CENTER, MIRROR_NONE);
-    ardbitmap.drawBitmap(dummy.x, dummy.y, dummy.sprite, 16, 16, WHITE, ALIGN_CENTER, MIRROR_NONE);
+    ardbitmap.drawBitmap(player.x, player.y, player.sprite, 16, 24, WHITE, ALIGN_NONE, MIRROR_NONE);
+    ardbitmap.drawBitmap(dummy.x, dummy.y, dummy.sprite, 16, 16, WHITE, ALIGN_NONE, MIRROR_NONE);
 
     // Draw hitbox of active move
     if (player.state == PlayerState::ExecutingMove) {

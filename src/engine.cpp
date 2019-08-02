@@ -19,7 +19,7 @@ uint8_t hitStunDecay = 0;
 
 Player player = {
     x: 32,
-    y: 64 - 13,
+    y: 64 - 25,
     currentMove: nullptr,
     currentMoveFrameCounter: 0,
     state: PlayerState::Idle,
@@ -34,7 +34,7 @@ Player player = {
 
 Dummy dummy = {
     x: 96,
-    y: 64 - 9,
+    y: 64 - 17,
     stunnedFrames: 0,
     recoveryFrames: 0,
     state: DummyState::Idle,
