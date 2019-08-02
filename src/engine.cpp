@@ -47,21 +47,18 @@ Dummy dummy = {
     }
 };
 
-void updateGame(uint8_t input) {
-
-    if (player.state == PlayerState::Idle) {
-        player.sprite = PLAYER_IDLE;
-    }
-
+void handlePlayerPosition(uint8_t input)  {
     // TODO: Use the Player's Hitbox for collision detection against the walls and the dummy
-    if (input & CB_RIGHT_BUTTON && player.x < 128 - 6 && player.state != PlayerState::ExecutingMove) {
+    if (input & CB_RIGHT_BUTTON && player.x < 128 - 16 && player.state != PlayerState::ExecutingMove) {
         ++player.x;
     }
 
-    if (input & CB_LEFT_BUTTON && player.x > 0 + 5 && player.state != PlayerState::ExecutingMove) {
+    if (input & CB_LEFT_BUTTON && player.x > 0 && player.state != PlayerState::ExecutingMove) {
         --player.x;
     }
+}
 
+void handleInputBuffer(uint8_t input) {
     // TODO: Make executing moves "generic" (let the buffer handle it, when it's done)
     if (input & CB_A_BUTTON && player.state != PlayerState::ExecutingMove) {
         player.currentMove = &MOVE_5A;
@@ -69,7 +66,9 @@ void updateGame(uint8_t input) {
         player.currentMoveHit = false; // CARE:
         player.state = PlayerState::ExecutingMove;
     }
+}
 
+void setPlayerSprite() {
     if (player.state == PlayerState::ExecutingMove) {
 
         // If the move has ended, return the player to idle state
@@ -94,7 +93,9 @@ void updateGame(uint8_t input) {
 
         ++player.currentMoveFrameCounter;
     }
+}
 
+void handleCurrentMoveAndCollision() {
     // Check if player is executing a move and if that move colides with the dummy
     if (player.state == PlayerState::ExecutingMove &&
         getMoveState(player.currentMove, player.currentMoveFrameCounter) == MoveState::Active && !player.currentMoveHit) {
@@ -125,7 +126,9 @@ void updateGame(uint8_t input) {
             ++hitStunDecay;
         }
     }
+}
 
+void updateDummy() {
     // Update Dummy
     if (dummy.stunnedFrames > 0) {
         dummy.state = DummyState::Hit;
@@ -154,7 +157,9 @@ void updateGame(uint8_t input) {
         default:
             dummy.sprite = DUMMY_IDLE;
     }
+}
 
+void updateComboDisplayTimer() {
     // Update the comboDisplayTimer
     if (comboDisplayTimer < comboDisplayTimerLimit) {
         ++comboDisplayTimer;
@@ -164,6 +169,26 @@ void updateGame(uint8_t input) {
         comboCounter = 0;
         hitStunDecay = 0;
     }
+}
+
+void updateGame(uint8_t input) {
+
+    // Force player sprite to be idle if state is idle, just in case
+    if (player.state == PlayerState::Idle) {
+        player.sprite = PLAYER_IDLE;
+    }
+
+    handlePlayerPosition(input);
+
+    handleInputBuffer(input);
+
+    setPlayerSprite();
+
+    handleCurrentMoveAndCollision();
+
+    updateDummy();
+    
+    updateComboDisplayTimer();
 }
 
 #endif
