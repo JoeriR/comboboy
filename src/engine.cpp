@@ -5,6 +5,7 @@
 #include "hitbox.h"
 #include "input.h"
 #include "move.h"
+#include "moveData.h"
 #include "spriteData.h"
 
 
@@ -27,23 +28,6 @@ Player player = {
         x: 0,
         y: 0,
         width: 16,
-        height: 16
-    }
-};
-
-Move fiveA = {
-    startupFrames: 6,
-    activeFrames: 3,
-    recoveryFrames: 12,
-    hitstunFrames: 24,
-    damage: 50,
-    startupSprite: PLAYER_5A_STARTUP,
-    activeSprite: PLAYER_5A_ACTIVE,
-    recoverySprite: PLAYER_5A_RECOVERY,
-    hitboxData: ConstHitbox {
-        xOffset: 8,
-        yOffset: 0,
-        width: 8,
         height: 16
     }
 };
@@ -80,7 +64,7 @@ void updateGame(uint8_t input) {
 
     // TODO: Make executing moves "generic" (let the buffer handle it, when it's done)
     if (input & CB_A_BUTTON && player.state != PlayerState::ExecutingMove) {
-        player.currentMove = &fiveA;
+        player.currentMove = &MOVE_5A;
         player.currentMoveFrameCounter = 0;
         player.currentMoveHit = false; // CARE:
         player.state = PlayerState::ExecutingMove;
