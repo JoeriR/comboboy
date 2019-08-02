@@ -73,7 +73,7 @@ void setup() {
     arduboy.boot();
     arduboy.setFrameRate(FRAME_RATE);
 
-    initGame();
+    Serial.begin(9600);     // Enable Serial
 }
 
 void loop() {
@@ -110,6 +110,19 @@ void loop() {
 
     ardbitmap.drawBitmap(player.x, player.y, player.sprite, 16, 24, WHITE, ALIGN_CENTER, MIRROR_NONE);
     ardbitmap.drawBitmap(dummy.x, dummy.y, dummy.sprite, 16, 16, WHITE, ALIGN_CENTER, MIRROR_NONE);
+
+    // Draw hitbox of active move
+    if (player.state == PlayerState::ExecutingMove) {
+
+        Hitbox tempHitbox = {
+            x: player.x + player.currentMove->hitboxData.xOffset,
+            y: player.y + player.currentMove->hitboxData.yOffset,
+            width: player.currentMove->hitboxData.width,
+            height: player.currentMove->hitboxData.height
+        };
+
+        arduboy.drawRect(tempHitbox.x, tempHitbox.y, tempHitbox.width, tempHitbox.height);
+    }
 
     arduboy.display();
 }

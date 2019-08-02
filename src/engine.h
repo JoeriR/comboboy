@@ -22,8 +22,6 @@ extern uint8_t hitStunDecay;
 
 extern Player player;
 
-extern Move fiveA;
-
 extern Dummy dummy;
 
 #endif
