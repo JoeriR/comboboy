@@ -17,6 +17,8 @@ uint8_t comboDisplayTimer = comboDisplayTimerLimit;
 
 uint8_t hitStunDecay = 0;
 
+bool didPlayerHitMoveThisFrame = false;
+
 Player player = {
     x: 32,
     y: 64 - 25,
@@ -59,12 +61,14 @@ void handlePlayerPosition(uint8_t input)  {
 }
 
 void handleInputBuffer(uint8_t input) {
-    // TODO: Make executing moves "generic" (let the buffer handle it, when it's done)
-    if (input & CB_A_BUTTON && player.state != PlayerState::ExecutingMove) {
-        player.currentMove = &MOVE_5A;
-        player.currentMoveFrameCounter = 0;
-        player.currentMoveHit = false; // CARE:
-        player.state = PlayerState::ExecutingMove;
+    // TODO: Implement an inputBuffer
+
+    // Decide which move to execute depenging on the player's input and state
+    // The Player can execute new moves if they're not currently performing a move.
+    // However, they are allowed to execute a new move if their current move has hit the dummy!
+    // (the Player can cancel moves on-hit)
+    if (input & CB_A_BUTTON && (player.state != PlayerState::ExecutingMove || player.currentMoveHit)) {
+        playerExecuteMove(&player, &MOVE_5A);
     }
 }
 

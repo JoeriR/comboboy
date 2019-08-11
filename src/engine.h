@@ -20,6 +20,8 @@ extern uint8_t comboDisplayTimer;
 
 extern uint8_t hitStunDecay;
 
+extern bool didPlayerHitMoveThisFrame;
+
 extern Player player;
 
 extern Dummy dummy;
