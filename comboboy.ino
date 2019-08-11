@@ -65,7 +65,7 @@ void updateInput() {
         input += CB_DOWN_BUTTON;
     if (arduboy.justPressed(A_BUTTON)) // TEMP: Change it back to pressed() when the input-buffer has been implemented
         input += CB_A_BUTTON;
-    if (arduboy.pressed(B_BUTTON))
+    if (arduboy.justPressed(B_BUTTON)) // TEMP: See comment above
         input += CB_B_BUTTON;
 }
 

@@ -6,6 +6,7 @@
 #include "input.h"
 #include "move.h"
 #include "moveData.h"
+#include "player.h"
 #include "spriteData.h"
 
 
@@ -25,6 +26,7 @@ Player player = {
     currentMove: nullptr,
     currentMoveFrameCounter: 0,
     state: PlayerState::Idle,
+    crouchState: PlayerCrouchState::Standing,
     sprite: PLAYER_IDLE,
     hitbox: Hitbox {
         x: 0,
@@ -49,15 +51,32 @@ Dummy dummy = {
     }
 };
 
-void handlePlayerPosition(uint8_t input)  {
+void handlePlayerPosition(uint8_t input) {
     // TODO: Use the Player's Hitbox for collision detection against the walls and the dummy
-    if (input & CB_RIGHT_BUTTON && player.x < 128 - 16 && player.state != PlayerState::ExecutingMove) {
-        ++player.x;
-    }
 
-    if (input & CB_LEFT_BUTTON && player.x > 0 && player.state != PlayerState::ExecutingMove) {
-        --player.x;
+    // Only allow the player to move if they're not holding down (are crouching)
+    if (!(input & CB_DOWN_BUTTON)) {
+        if (input & CB_RIGHT_BUTTON && player.x < 128 - 16 && player.state != PlayerState::ExecutingMove && player.crouchState != PlayerCrouchState::Crouching) {
+            ++player.x;
+        }
+
+        if (input & CB_LEFT_BUTTON && player.x > 0 && player.state != PlayerState::ExecutingMove && player.crouchState != PlayerCrouchState::Crouching) {
+            --player.x;
+        }
     }
+}
+
+void handlePlayerCrouching(uint8_t input) {
+    if (player.state != PlayerState::Idle)
+        return;
+    
+    PlayerCrouchState crouchState = getPlayerCrouchState(&player, input);
+
+    if (crouchState == PlayerCrouchState::InBetween) 
+        player.sprite = PLAYER_CROUCH_INBETWEEN;
+    if (crouchState == PlayerCrouchState::Crouching)
+        player.sprite = PLAYER_CROUCH;
+    
 }
 
 void handleInputBuffer(uint8_t input) {
@@ -183,6 +202,7 @@ void updateGame(uint8_t input) {
     }
 
     handlePlayerPosition(input);
+    handlePlayerCrouching(input);
 
     handleInputBuffer(input);
 

@@ -8,6 +8,7 @@
 
 
 enum class PlayerState { Idle, Walking, Dashing, ExecutingMove };
+enum class PlayerCrouchState { Standing, InBetween, Crouching, };
 
 typedef struct Player {
     uint8_t x;
@@ -15,6 +16,7 @@ typedef struct Player {
     Move const *currentMove;
     uint8_t currentMoveFrameCounter;
     PlayerState state;
+    PlayerCrouchState crouchState;
     uint8_t const *sprite;
     Hitbox hitbox;
     bool currentMoveHit; // TODO: Replace this with a solution that supports with slow fireballs. Those will require their own bool or something else.
@@ -22,5 +24,7 @@ typedef struct Player {
 
 void playerSetIdle(Player *player);
 void playerExecuteMove(Player *player, Move const *move);
+
+PlayerCrouchState getPlayerCrouchState(Player *player, uint8_t input);
 
 #endif
