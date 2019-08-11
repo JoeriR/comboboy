@@ -12,4 +12,11 @@ void playerSetIdle(Player *player) {
     player->sprite = PLAYER_IDLE;
 }
 
+void playerExecuteMove(Player *player, Move const *move) {
+    player->currentMove = move;
+    player->currentMoveFrameCounter = 0;
+    player->currentMoveHit = false; // CARE:
+    player->state = PlayerState::ExecutingMove;
+}
+
 #endif

@@ -21,5 +21,6 @@ typedef struct Player {
 } Player;
 
 void playerSetIdle(Player *player);
+void playerExecuteMove(Player *player, Move const *move);
 
 #endif
