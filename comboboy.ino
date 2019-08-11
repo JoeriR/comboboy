@@ -63,7 +63,7 @@ void updateInput() {
         input += CB_UP_BUTTON;
     if (arduboy.pressed(DOWN_BUTTON))
         input += CB_DOWN_BUTTON;
-    if (arduboy.pressed(A_BUTTON))
+    if (arduboy.justPressed(A_BUTTON)) // TEMP: Change it back to pressed() when the input-buffer has been implemented
         input += CB_A_BUTTON;
     if (arduboy.pressed(B_BUTTON))
         input += CB_B_BUTTON;
@@ -112,7 +112,7 @@ void loop() {
     ardbitmap.drawBitmap(dummy.x, dummy.y, dummy.sprite, 16, 16, WHITE, ALIGN_NONE, MIRROR_NONE);
 
     // Draw hitbox of active move
-    if (player.state == PlayerState::ExecutingMove) {
+    if (player.state == PlayerState::ExecutingMove && getMoveState(player.currentMove, player.currentMoveFrameCounter) == MoveState::Active) {
 
         Hitbox tempHitbox = {
             x: player.x + player.currentMove->hitboxData.xOffset,
