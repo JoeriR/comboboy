@@ -23,4 +23,21 @@ const Move MOVE_5A = {
     }
 };
 
+const Move MOVE_2A = {
+    startupFrames: 7,
+    activeFrames: 2,
+    recoveryFrames: 11,
+    hitstunFrames: 20,
+    damage: 50,
+    startupSprite: PLAYER_2A_STARTUP,
+    activeSprite: PLAYER_2A_ACTIVE,
+    recoverySprite: PLAYER_2A_RECOVERY,
+    hitboxData: ConstHitbox {
+        xOffset: 12,
+        yOffset: 17,
+        width: 4,
+        height: 7
+    }
+};
+
 #endif

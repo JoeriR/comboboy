@@ -6,6 +6,7 @@
 #include "hitbox.h"
 #include "move.h"
 
+#define CROUCH_FRAME_LIMIT 4
 
 enum class PlayerState { Idle, Walking, Dashing, ExecutingMove };
 enum class PlayerCrouchState { Standing, InBetween, Crouching, };
@@ -16,6 +17,7 @@ typedef struct Player {
     Move const *currentMove;
     uint8_t currentMoveFrameCounter;
     PlayerState state;
+    uint8_t crouchFrame;
     PlayerCrouchState crouchState;
     uint8_t const *sprite;
     Hitbox hitbox;

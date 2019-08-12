@@ -26,6 +26,7 @@ Player player = {
     currentMove: nullptr,
     currentMoveFrameCounter: 0,
     state: PlayerState::Idle,
+    crouchFrame: 0,
     crouchState: PlayerCrouchState::Standing,
     sprite: PLAYER_IDLE,
     hitbox: Hitbox {
@@ -67,8 +68,16 @@ void handlePlayerPosition(uint8_t input) {
 }
 
 void handlePlayerCrouching(uint8_t input) {
-    if (player.state != PlayerState::Idle)
+
+    if (player.currentMove == &MOVE_2A)
+        player.crouchFrame = CROUCH_FRAME_LIMIT;
+
+    if (player.state != PlayerState::Idle) {
+        if (player.currentMove != &MOVE_2A) {
+            player.crouchFrame = 0;
+        }
         return;
+    }
     
     PlayerCrouchState crouchState = getPlayerCrouchState(&player, input);
 
@@ -76,7 +85,6 @@ void handlePlayerCrouching(uint8_t input) {
         player.sprite = PLAYER_CROUCH_INBETWEEN;
     if (crouchState == PlayerCrouchState::Crouching)
         player.sprite = PLAYER_CROUCH;
-    
 }
 
 void handleInputBuffer(uint8_t input) {
@@ -86,8 +94,13 @@ void handleInputBuffer(uint8_t input) {
     // The Player can execute new moves if they're not currently performing a move.
     // However, they are allowed to execute a new move if their current move has hit the dummy!
     // (the Player can cancel moves on-hit)
-    if (input & CB_A_BUTTON && (player.state != PlayerState::ExecutingMove || player.currentMoveHit)) {
-        playerExecuteMove(&player, &MOVE_5A);
+
+    if (player.state != PlayerState::ExecutingMove || player.currentMoveHit) {
+        
+        if (input & CB_DOWN_BUTTON && input & CB_A_BUTTON)
+            playerExecuteMove(&player, &MOVE_2A);
+        else if (input & CB_A_BUTTON) 
+            playerExecuteMove(&player, &MOVE_5A);
     }
 }
 
@@ -202,11 +215,11 @@ void updateGame(uint8_t input) {
     }
 
     handlePlayerPosition(input);
-    handlePlayerCrouching(input);
 
     handleInputBuffer(input);
 
     setPlayerSprite();
+    handlePlayerCrouching(input);
 
     handleCurrentMoveAndCollision();
 
