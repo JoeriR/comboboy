@@ -101,6 +101,8 @@ void handleInputBuffer(uint8_t input) {
             playerExecuteMove(&player, &MOVE_2A);
         else if (input & CB_A_BUTTON) 
             playerExecuteMove(&player, &MOVE_5A);
+        else if (input & CB_B_BUTTON)
+            playerExecuteMove(&player, &MOVE_5B);
     }
 }
 
