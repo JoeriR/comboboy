@@ -135,36 +135,38 @@ void setPlayerSprite() {
 
 void handleCurrentMoveAndCollision() {
     // Check if player is executing a move and if that move colides with the dummy
-    if (player.state == PlayerState::ExecutingMove && getMoveState(player.currentMove, player.currentMoveFrameCounter) == MoveState::Active && !player.currentMoveHit) {
+    if (player.state == PlayerState::ExecutingMove) {
         
         // Execute a move's unique function if it has one
         if (player.currentMove->moveFunction != nullptr)
             player.currentMove->moveFunction();
 
-        Hitbox playerMoveHitbox = {
-            x : player.x + player.currentMove->hitboxData.xOffset,
-            y : player.y + player.currentMove->hitboxData.yOffset,
-            width : player.currentMove->hitboxData.width,
-            height : player.currentMove->hitboxData.height
-        };
+        if (getMoveState(player.currentMove, player.currentMoveFrameCounter) == MoveState::Active && !player.currentMoveHit) {
+            Hitbox playerMoveHitbox = {
+                x : player.x + player.currentMove->hitboxData.xOffset,
+                y : player.y + player.currentMove->hitboxData.yOffset,
+                width : player.currentMove->hitboxData.width,
+                height : player.currentMove->hitboxData.height
+            };
 
-        dummy.hitbox.x = dummy.x;
-        dummy.hitbox.y = dummy.y;
+            dummy.hitbox.x = dummy.x;
+            dummy.hitbox.y = dummy.y;
 
-        if (collision(&playerMoveHitbox, &dummy.hitbox)) {
-            player.currentMoveHit = true;
+            if (collision(&playerMoveHitbox, &dummy.hitbox)) {
+                player.currentMoveHit = true;
 
-            // Put the dummy in hitstun
-            dummy.stunnedFrames = player.currentMove->hitstunFrames - hitStunDecay;
+                // Put the dummy in hitstun
+                dummy.stunnedFrames = player.currentMove->hitstunFrames - hitStunDecay;
 
-            // Increase comboCounter
-            ++comboCounter;
-            comboCounterDisplay = comboCounter;
+                // Increase comboCounter
+                ++comboCounter;
+                comboCounterDisplay = comboCounter;
 
-            comboDisplayTimer = 0;
+                comboDisplayTimer = 0;
 
-            // Update hitStunDecay
-            ++hitStunDecay;
+                // Update hitStunDecay
+                ++hitStunDecay;
+            }
         }
     }
 }
