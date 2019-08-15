@@ -15,6 +15,7 @@ const Move MOVE_5A = {
     startupSprite: PLAYER_5A_STARTUP,
     activeSprite: PLAYER_5A_ACTIVE,
     recoverySprite: PLAYER_5A_RECOVERY,
+    moveFunction: nullptr,
     hitboxData: ConstHitbox {
         xOffset: 8,
         yOffset: 0,
@@ -32,6 +33,7 @@ const Move MOVE_2A = {
     startupSprite: PLAYER_2A_STARTUP,
     activeSprite: PLAYER_2A_ACTIVE,
     recoverySprite: PLAYER_2A_RECOVERY,
+    moveFunction: nullptr,
     hitboxData: ConstHitbox {
         xOffset: 12,
         yOffset: 17,

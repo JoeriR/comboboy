@@ -133,8 +133,11 @@ void setPlayerSprite() {
 
 void handleCurrentMoveAndCollision() {
     // Check if player is executing a move and if that move colides with the dummy
-    if (player.state == PlayerState::ExecutingMove &&
-        getMoveState(player.currentMove, player.currentMoveFrameCounter) == MoveState::Active && !player.currentMoveHit) {
+    if (player.state == PlayerState::ExecutingMove && getMoveState(player.currentMove, player.currentMoveFrameCounter) == MoveState::Active && !player.currentMoveHit) {
+        
+        // Execute a move's unique function if it has one
+        if (player.currentMove->moveFunction != nullptr)
+            player.currentMove->moveFunction();
 
         Hitbox playerMoveHitbox = {
             x : player.x + player.currentMove->hitboxData.xOffset,
