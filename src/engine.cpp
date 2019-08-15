@@ -57,11 +57,11 @@ void handlePlayerPosition(uint8_t input) {
 
     // Only allow the player to move if they're not holding down (are crouching)
     if (!(input & CB_DOWN_BUTTON)) {
-        if (input & CB_RIGHT_BUTTON && player.x < 128 - 16 && player.state != PlayerState::ExecutingMove && player.crouchState != PlayerCrouchState::Crouching) {
+        if (input & CB_RIGHT_BUTTON && player.state != PlayerState::ExecutingMove && player.crouchState != PlayerCrouchState::Crouching) {
             ++player.x;
         }
 
-        if (input & CB_LEFT_BUTTON && player.x > 0 && player.state != PlayerState::ExecutingMove && player.crouchState != PlayerCrouchState::Crouching) {
+        if (input & CB_LEFT_BUTTON && player.state != PlayerState::ExecutingMove && player.crouchState != PlayerCrouchState::Crouching) {
             --player.x;
         }
     }
@@ -195,6 +195,28 @@ void updateDummy() {
     }
 }
 
+void preventOutofBounds() {
+    // Push player inwards towards the screen
+    if (player.x > 128 + 64)
+        player.x = 0;
+    if (player.x > 128 - 16)
+        player.x = 128 - 16;
+    if (player.y > 64 + 64)
+        player.y = 0;
+    if (player.y > 64 - 25)
+        player.y = 64 - 25;
+
+    // Push dummy inwards towards the screen
+    if (dummy.x > 128 + 64)
+        dummy.x = 0;
+    if (dummy.x > 128 - 16)
+        dummy.x = 128 - 16;
+    if (dummy.y > 64 + 64)
+        dummy.y = 0;
+    if (dummy.y > 64 - 17)
+        dummy.y = 64 - 17;
+}
+
 void updateComboDisplayTimer() {
     // Update the comboDisplayTimer
     if (comboDisplayTimer < comboDisplayTimerLimit) {
@@ -224,6 +246,8 @@ void updateGame(uint8_t input) {
     handleCurrentMoveAndCollision();
 
     updateDummy();
+
+    preventOutofBounds();
     
     updateComboDisplayTimer();
 }
