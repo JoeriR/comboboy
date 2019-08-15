@@ -13,6 +13,15 @@ void moveFunction5B() {
     }
 }
 
+void moveFunction2B() {
+    if (getMoveState(player.currentMove, player.currentMoveFrameCounter) == MoveState::Startup && player.currentMoveFrameCounter % 3 == 0) 
+        ++player.x;
+    if (getMoveState(player.currentMove, player.currentMoveFrameCounter) == MoveState::Active) 
+        player.x += 2;
+    if (getMoveState(player.currentMove, player.currentMoveFrameCounter) == MoveState::Recovery && player.currentMoveFrameCounter % 2 == 0) 
+        ++player.x;
+}
+
 const Move MOVE_5A = {
     startupFrames: 6,
     activeFrames: 3,
@@ -67,6 +76,24 @@ const Move MOVE_2A = {
     }
 };
 
+const Move MOVE_2B = {
+    startupFrames: 10,
+    activeFrames: 8,
+    recoveryFrames: 20,
+    hitstunFrames: 32,
+    damage: 100,
+    startupSprite: PLAYER_2B_STARTUP,
+    activeSprite: PLAYER_2B_ACTIVE,
+    recoverySprite: PLAYER_2B_RECOVERY,
+    moveFunction: moveFunction2B,
+    hitboxData: ConstHitbox {
+        xOffset: 6,
+        yOffset: 11,
+        width: 13,
+        height: 13
+    }
+};
+
 #endif
 
 /*
@@ -81,6 +108,7 @@ const Move MOVE_ = {
     startupSprite: PLAYER__STARTUP,
     activeSprite: PLAYER__ACTIVE,
     recoverySprite: PLAYER__RECOVERY,
+    moveFunction: nullptr,
     hitboxData: ConstHitbox {
         xOffset: ,
         yOffset: ,
