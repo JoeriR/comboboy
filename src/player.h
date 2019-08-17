@@ -14,6 +14,8 @@ enum class PlayerCrouchState { Standing, InBetween, Crouching, };
 typedef struct Player {
     uint8_t x;
     uint8_t y;
+    int8_t xOffset;
+    int8_t yOffset;
     Move const *currentMove;
     uint8_t currentMoveFrameCounter;
     PlayerState state;

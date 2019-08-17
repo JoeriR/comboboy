@@ -10,6 +10,7 @@
 void moveFunction5B() {
     if (getMoveState(player.currentMove, player.currentMoveFrameCounter) == MoveState::Active) {
         ++player.x;
+        player.xOffset = -4;
     }
 }
 

@@ -23,6 +23,8 @@ bool didPlayerHitMoveThisFrame = false;
 Player player = {
     x: 32,
     y: 64 - 25,
+    xOffset: 0,
+    yOffset: 0,
     currentMove: nullptr,
     currentMoveFrameCounter: 0,
     state: PlayerState::Idle,
@@ -244,6 +246,9 @@ void updateGame(uint8_t input) {
     if (player.state == PlayerState::Idle) {
         player.sprite = PLAYER_IDLE;
     }
+
+    player.xOffset = 0;
+    player.yOffset = 0;
 
     handlePlayerPosition(input);
 

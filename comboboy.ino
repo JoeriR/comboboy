@@ -108,7 +108,8 @@ void loop() {
     arduboy.setCursor(2, 2);
     arduboy.print(F("Comboboy WIP - Joeri"));
 
-    ardbitmap.drawBitmap(player.x, player.y, player.sprite, 16, 24, WHITE, ALIGN_NONE, MIRROR_NONE);
+    // Draw player and dummy
+    ardbitmap.drawBitmap(player.x + player.xOffset, player.y + player.yOffset, player.sprite, 16, 24, WHITE, ALIGN_NONE, MIRROR_NONE);
     ardbitmap.drawBitmap(dummy.x, dummy.y, dummy.sprite, 16, 16, WHITE, ALIGN_NONE, MIRROR_NONE);
 
     // Draw hitbox of active move
@@ -121,7 +122,7 @@ void loop() {
             height: player.currentMove->hitboxData.height
         };
 
-        arduboy.drawRect(tempHitbox.x, tempHitbox.y, tempHitbox.width, tempHitbox.height);
+        //arduboy.drawRect(tempHitbox.x, tempHitbox.y, tempHitbox.width, tempHitbox.height);
     }
 
     arduboy.display();
