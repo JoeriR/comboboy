@@ -36,16 +36,16 @@ void handleTitlescreen() {
 
         // Draw Titlescreen text
         arduboy.setCursor(2, 2);
-        arduboy.write("Combo Boy");
+        arduboy.print(F("Combo Boy"));
 
         arduboy.setCursor(2, 12);
-        arduboy.write("Made by Joeri");
+        arduboy.print(F("Made by Joeri"));
 
         arduboy.setCursor(2, 22);
-        arduboy.write("V 0.0.1");
+        arduboy.print(F("V 0.0.1"));
 
         arduboy.setCursor(10, 42);
-        arduboy.write("Press A/B to play");
+        arduboy.print(F("Press A/B to play"));
 
         arduboy.display();
     }
@@ -98,7 +98,7 @@ void loop() {
     if (comboDisplayTimer < comboDisplayTimerLimit) {
         arduboy.setCursor(2, 10);
         arduboy.print(comboCounterDisplay);
-        arduboy.write(" Hits");
+        arduboy.print(F(" Hits"));
     }
 
     // Draw screen boundaries
@@ -106,7 +106,7 @@ void loop() {
 
     // Write Work In Progress message
     arduboy.setCursor(2, 2);
-    arduboy.write("Comboboy WIP - Joeri");
+    arduboy.print(F("Comboboy WIP - Joeri"));
 
     ardbitmap.drawBitmap(player.x, player.y, player.sprite, 16, 24, WHITE, ALIGN_NONE, MIRROR_NONE);
     ardbitmap.drawBitmap(dummy.x, dummy.y, dummy.sprite, 16, 16, WHITE, ALIGN_NONE, MIRROR_NONE);
