@@ -156,7 +156,7 @@ void handleCurrentMoveAndCollision() {
             dummy.hitbox.x = dummy.x;
             dummy.hitbox.y = dummy.y;
 
-            if (collision(&playerMoveHitbox, &dummy.hitbox)) {
+            if (dummy.state != DummyState::Recovery && collision(&playerMoveHitbox, &dummy.hitbox)) {
                 player.currentMoveHit = true;
 
                 // Put the dummy in hitstun
@@ -183,9 +183,13 @@ void updateDummy() {
         --dummy.stunnedFrames;
 
         if (dummy.stunnedFrames == 0) {
-            dummy.state = DummyState::Recovery; // TODO: implement dummy recovery animation and logic
-            dummy.recoveryFrames = 20;
+            dummy.state = DummyState::Recovery;
+            dummy.recoveryFrames = 60;
         }
+    }
+    else if (dummy.recoveryFrames > 0) {
+        dummy.state = DummyState::Recovery;
+        --dummy.recoveryFrames;
     }
     else {
         dummy.state = DummyState::Idle;
@@ -199,7 +203,7 @@ void updateDummy() {
             dummy.sprite = DUMMY_HIT;
             break;
         case DummyState::Recovery:
-            dummy.sprite = DUMMY_IDLE;
+            dummy.sprite = DUMMY_RECOVERY;
             break;
         default:
             dummy.sprite = DUMMY_IDLE;

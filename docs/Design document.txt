@@ -2,7 +2,7 @@ TODO:
     1: Store hitboxes well for both moves, the player and the dummy - DONE
     2: Disable LEDs - DONE (by using arduboy2.boot())
 
-    3: Implement dummy recovery period after a combo has ended
+    3: Implement dummy recovery period after a combo has ended - DONE
     4: Implement generic-esque code for executing moves (ties in with the buffer) - DONE
 
     5: Implement the buffer (input buffer)
