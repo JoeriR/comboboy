@@ -18,6 +18,8 @@ uint8_t comboDisplayTimer = comboDisplayTimerLimit;
 
 uint8_t hitStunDecay = 0;
 
+uint8_t hitStopFrames = 0;
+
 bool didPlayerHitMoveThisFrame = false;
 
 Player player = {
@@ -162,6 +164,9 @@ void handleCurrentMoveAndCollision() {
                 // Put the dummy in hitstun
                 dummy.stunnedFrames = player.currentMove->hitstunFrames - hitStunDecay;
 
+                // Set hitstop
+                hitStopFrames = 12;
+
                 // Increase comboCounter
                 ++comboCounter;
                 comboCounterDisplay = comboCounter;
@@ -251,23 +256,28 @@ void updateGame(uint8_t input) {
         player.sprite = PLAYER_IDLE;
     }
 
-    player.xOffset = 0;
-    player.yOffset = 0;
-
-    handlePlayerPosition(input);
-
     handleInputBuffer(input);
 
-    setPlayerSprite();
-    handlePlayerCrouching(input);
+    if (hitStopFrames > 0) {
+        --hitStopFrames;
+    }
+    else {
+        player.xOffset = 0;
+        player.yOffset = 0;
+        handlePlayerPosition(input);
 
-    handleCurrentMoveAndCollision();
+        setPlayerSprite();
+        handlePlayerCrouching(input);
 
-    updateDummy();
+        handleCurrentMoveAndCollision();
 
-    preventOutofBounds();
+        updateDummy();
+
+        preventOutofBounds();
+        
+        updateComboDisplayTimer();
+    }
     
-    updateComboDisplayTimer();
 }
 
 #endif
