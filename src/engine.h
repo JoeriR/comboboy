@@ -22,6 +22,8 @@ extern uint16_t comboDamage;
 extern uint16_t comboDamageDisplay;
 extern uint8_t comboDamageScale;
 
+extern uint16_t currentHitDamage;
+
 extern uint8_t hitStunDecay;
 
 extern bool didPlayerHitMoveThisFrame;

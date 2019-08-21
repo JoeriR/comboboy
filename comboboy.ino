@@ -103,6 +103,10 @@ void loop() {
         arduboy.setCursor(2, 18);
         arduboy.print(comboDamageDisplay);
         arduboy.print(F(" Dmg"));
+
+        arduboy.setCursor(2, 26);
+        arduboy.print(currentHitDamage);
+        arduboy.print(F(" Dmg hit"));
     }
 
     // Draw screen boundaries

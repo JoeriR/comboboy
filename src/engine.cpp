@@ -20,6 +20,8 @@ uint16_t comboDamage = 0;
 uint16_t comboDamageDisplay = 0;
 uint8_t comboDamageScale = 100; // in percent
 
+uint16_t currentHitDamage = 0;
+
 uint8_t hitStunDecay = 0;
 
 uint8_t hitStopFrames = 0;
@@ -178,8 +180,11 @@ void handleCurrentMoveAndCollision() {
                 comboDisplayTimer = 0;
 
                 // Calculate damage and add to comboDamage
-                uint16_t scaledDamage = player.currentMove->damage * 100 / comboDamageScale;
+                uint16_t scaledDamage = player.currentMove->damage * comboDamageScale;
                 comboDamage += scaledDamage;
+                comboDamageDisplay = comboDamage;
+
+                currentHitDamage = scaledDamage;
 
                 if (comboDamageScale > 10) {
                     if (comboDamageScale > 50)
@@ -260,6 +265,8 @@ void updateComboDisplayTimer() {
 
     if (dummy.state == DummyState::Idle) {
         comboCounter = 0;
+        comboDamage = 0;
+        comboDamageScale = 100;
         hitStunDecay = 0;
     }
 }
