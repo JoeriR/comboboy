@@ -13,10 +13,14 @@ void initGame();
 void updateGame(uint8_t input);
 
 // Variables
-extern short comboCounter;
-extern short comboCounterDisplay;
+extern uint16_t comboCounter;
+extern uint16_t comboCounterDisplay;
 extern uint8_t comboDisplayTimerLimit;
 extern uint8_t comboDisplayTimer;
+
+extern uint16_t comboDamage;
+extern uint16_t comboDamageDisplay;
+extern uint8_t comboDamageScale;
 
 extern uint8_t hitStunDecay;
 

@@ -94,11 +94,15 @@ void loop() {
 
     updateGame(input);
 
-    // Draw comboTimerDisplay
+    // Draw comboTimerDisplay and draw damage
     if (comboDisplayTimer < comboDisplayTimerLimit) {
         arduboy.setCursor(2, 10);
         arduboy.print(comboCounterDisplay);
         arduboy.print(F(" Hits"));
+
+        arduboy.setCursor(2, 18);
+        arduboy.print(comboDamageDisplay);
+        arduboy.print(F(" Dmg"));
     }
 
     // Draw screen boundaries
