@@ -4,6 +4,7 @@
 #include <Arduboy2.h>
 #include <Arduino.h>
 
+#include "src/buffer.h"
 #include "src/dummy.h"
 #include "src/engine.h"
 #include "src/input.h"
@@ -73,6 +74,8 @@ void setup() {
     arduboy.boot();
     arduboy.setFrameRate(FRAME_RATE);
 
+    initBuffer();
+
     Serial.begin(9600);     // Enable Serial
 }
 
@@ -93,6 +96,12 @@ void loop() {
     updateInput();
 
     updateGame(input);
+
+    // DEBUG print, can be removed later
+    if (detectQuarterCircleForward()) {
+        arduboy.setCursor(100, 18);
+        arduboy.print(F("QCF"));
+    }
 
     // Draw comboTimerDisplay and draw damage
     if (comboDisplayTimer < comboDisplayTimerLimit) {
