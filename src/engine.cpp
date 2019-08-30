@@ -8,6 +8,7 @@
 #include "move.h"
 #include "moveData.h"
 #include "player.h"
+#include "projectile.h"
 #include "spriteData.h"
 
 
@@ -62,6 +63,21 @@ Dummy dummy = {
         height: 16
     }
 };
+
+
+// Projectile projectile = {
+//     x: 0,
+//     y: 0,
+//     damage: 0,
+//     direction: true,
+//     sprite: DUMMY_IDLE,
+//     hitbox: Hitbox {
+//         x: 0,
+//         y: 0,
+//         width: 0,
+//         height: 0
+//     }
+// };
 
 void handlePlayerPosition(uint8_t input) {
     // TODO: Use the Player's Hitbox for collision detection against the walls and the dummy
@@ -146,6 +162,14 @@ void setPlayerSprite() {
 
         ++player.currentMoveFrameCounter;
     }
+}
+
+void handleProjectiles(uint8_t input) {
+
+    if (detectQuarterCircleForward() && input & CB_A_BUTTON)
+        player.currentMove = &MOVE_236A;
+
+    updateFireball(fireballPtr);
 }
 
 void handleCurrentMoveAndCollision() {
@@ -293,6 +317,8 @@ void updateGame(uint8_t input) {
 
         setPlayerSprite();
         handlePlayerCrouching(input);
+
+        handleProjectiles(input);
 
         handleCurrentMoveAndCollision();
 

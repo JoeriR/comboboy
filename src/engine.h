@@ -6,6 +6,7 @@
 #include "dummy.h"
 #include "move.h"
 #include "player.h"
+#include "projectile.h"
 
 
 // Functions

@@ -129,6 +129,9 @@ void loop() {
     ardbitmap.drawBitmap(player.x + player.xOffset, player.y + player.yOffset, player.sprite, 16, 24, WHITE, ALIGN_NONE, MIRROR_NONE);
     ardbitmap.drawBitmap(dummy.x, dummy.y, dummy.sprite, 16, 16, WHITE, ALIGN_NONE, MIRROR_NONE);
 
+    // Draw fireball
+    ardbitmap.drawBitmap(fireballPtr->x, fireballPtr->y, fireballPtr->sprite, 16, 24, WHITE, ALIGN_NONE, MIRROR_NONE);
+
     // Draw hitbox of active move
     if (player.state == PlayerState::ExecutingMove && getMoveState(player.currentMove, player.currentMoveFrameCounter) == MoveState::Active) {
 
