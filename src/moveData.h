@@ -25,7 +25,7 @@ void moveFunction2B() {
 }
 
 void moveFunction236A() {
-    if (getMoveState(player.currentMove, player.currentMoveFrameCounter) == MoveState::Recovery && player.currentMoveFrameCounter == player.currentMove->startupFrames + player.currentMove->activeFrames + 1) {
+    if (!isProjectileOnScreen(fireballPtr) && getMoveState(player.currentMove, player.currentMoveFrameCounter) == MoveState::Recovery && player.currentMoveFrameCounter == player.currentMove->startupFrames + player.currentMove->activeFrames + 1) {
         fireballPtr->x = player.x;
         fireballPtr->y = player.y;
         fireballPtr->damage = 12;

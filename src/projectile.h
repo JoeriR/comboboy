@@ -16,6 +16,7 @@ typedef struct Projectile {
 
 extern Projectile *fireballPtr;
 
+bool isProjectileOnScreen(Projectile *projectile);
 void updateFireball(Projectile *fireball);
 
 #endif

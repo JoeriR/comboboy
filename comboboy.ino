@@ -43,7 +43,7 @@ void handleTitlescreen() {
         arduboy.print(F("Made by Joeri"));
 
         arduboy.setCursor(2, 22);
-        arduboy.print(F("V 0.0.1"));
+        arduboy.print(F("V 0.3"));
 
         arduboy.setCursor(10, 42);
         arduboy.print(F("Press A/B to play"));

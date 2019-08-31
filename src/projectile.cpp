@@ -25,12 +25,20 @@ Projectile *fireballPtr = &fireball;
 
 void updateFireball(Projectile *fireball) {
     // Check if the fireball is onscreen
-    if (fireball->x < 128 || fireball->x > 255 - fireball->hitbox.width) {
+    if (isProjectileOnScreen(fireball)) {
         if (fireball->direction)
             ++fireball->x;
         else
             --fireball->x;
     }
+}
+
+bool isProjectileOnScreen(Projectile *projectile) {
+    if (projectile->x < 128 || projectile->x > 255 - projectile->hitbox.width) 
+        if (projectile->y < 64)
+            return true;
+    
+    return false;
 }
 
 #endif
