@@ -30,8 +30,8 @@ void moveFunction236A() {
         fireballPtr->y = player.y;
         fireballPtr->damage = 12;
         fireballPtr->direction = true;
+        fireballPtr->despawnAfterHitstop = false;
     }
-        
 }
 
 const Move MOVE_5A = {

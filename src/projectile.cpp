@@ -12,16 +12,25 @@ Projectile fireball = {
     y: 200,
     damage: 0,
     direction: true,
+    despawnAfterHitstop: false,
     sprite: PLAYER_2B_ACTIVE,
     hitbox: Hitbox {
-        x: 0,
-        y: 0,
+        x: 200,
+        y: 200,
         width: 16,
         height: 16
     }
 };
 
 Projectile *fireballPtr = &fireball;
+
+void despawnProjectile(Projectile *projectile) {
+    projectile->x = 200;
+    projectile->y = 200;
+
+    projectile->hitbox.x = 200;
+    projectile->hitbox.y = 200;
+}
 
 void updateFireball(Projectile *fireball) {
     // Check if the fireball is onscreen
@@ -30,6 +39,9 @@ void updateFireball(Projectile *fireball) {
             ++fireball->x;
         else
             --fireball->x;
+
+        fireball->hitbox.x = fireball->x;
+        fireball->hitbox.y = fireball->y;
     }
 }
 
