@@ -49,6 +49,14 @@ bool detectQuarterCircleForward() {
     bool downForwardFound = false;
     bool forwardFound = false;
 
+    // If a quartercircle forward was detected in x amount of previous frames, then return true
+    static uint8_t quarterCircleForwardDetectedFrames = 0;
+
+    if (quarterCircleForwardDetectedFrames > 0) {
+        --quarterCircleForwardDetectedFrames;
+        return true;
+    }
+
 	// Go one spot further than bufferEnd?
     while (pointer != bufferEnd) {
 		if (*pointer == CB_DOWN_BUTTON) {
@@ -65,14 +73,16 @@ bool detectQuarterCircleForward() {
 		if (counter > 0)
 			++counter;
 
-        if (counter > 10)
-            break;
+        if (counter > 15)
+            downFound = false;
     }
 
-    if (downFound && downForwardFound && forwardFound)
-            return true;
-        else
-            return false;
+    if (downFound && downForwardFound && forwardFound) {
+        quarterCircleForwardDetectedFrames = 20;
+        return true;
+    }
+    else
+        return false;
 }
 
 void printBufferToSerial() {

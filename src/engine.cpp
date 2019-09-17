@@ -2,12 +2,14 @@
 #define ENGINE_CPP
 
 #include "buffer.h"
+#include "dummy.h"
 #include "engine.h"
 #include "hitbox.h"
 #include "input.h"
 #include "move.h"
 #include "moveData.h"
 #include "player.h"
+#include "projectile.h"
 #include "spriteData.h"
 
 
@@ -56,12 +58,27 @@ Dummy dummy = {
     state: DummyState::Idle,
     sprite: DUMMY_IDLE,
     hitbox: Hitbox {
-        x: 0,
-        y: 0,
+        x: 96,
+        y: 64 - 17,
         width: 16,
         height: 16
     }
 };
+
+
+// Projectile projectile = {
+//     x: 0,
+//     y: 0,
+//     damage: 0,
+//     direction: true,
+//     sprite: DUMMY_IDLE,
+//     hitbox: Hitbox {
+//         x: 0,
+//         y: 0,
+//         width: 0,
+//         height: 0
+//     }
+// };
 
 void handlePlayerPosition(uint8_t input) {
     // TODO: Use the Player's Hitbox for collision detection against the walls and the dummy
@@ -99,8 +116,6 @@ void handlePlayerCrouching(uint8_t input) {
 }
 
 void handleInputBuffer(uint8_t input) {
-    // TODO: Implement an inputBuffer
-
     // Decide which move to execute depenging on the player's input and state
     // The Player can execute new moves if they're not currently performing a move.
     // However, they are allowed to execute a new move if their current move has hit the dummy!
@@ -110,7 +125,9 @@ void handleInputBuffer(uint8_t input) {
 
     if (player.state != PlayerState::ExecutingMove || player.currentMoveHit) {
         
-        if (input & CB_DOWN_BUTTON && input & CB_A_BUTTON)
+        if (detectQuarterCircleForward() && input & CB_A_BUTTON)
+            playerExecuteMove(&player, &MOVE_236A);
+        else if (input & CB_DOWN_BUTTON && input & CB_A_BUTTON)
             playerExecuteMove(&player, &MOVE_2A);
         else if (input & CB_A_BUTTON) 
             playerExecuteMove(&player, &MOVE_5A);
@@ -148,6 +165,61 @@ void setPlayerSprite() {
     }
 }
 
+void handleProjectiles(uint8_t input) {
+    if (fireballPtr->despawnAfterHitstop)
+        despawnProjectile(fireballPtr);
+
+    updateFireball(fireballPtr);
+}
+
+// TODO: Currently only works properly when the player is facing right
+bool handlePlayerDummyCollision(Player *player, Dummy *dummy) {
+    bool didPlayerAndDummyCollide = isPointInBox(player->x + 16, player->y + 8, &dummy->hitbox) || isPointInBox(player->x + 16, player->y + 16, &dummy->hitbox) || isPointInBox(player->x + 16, player->y + 24, &dummy->hitbox);
+
+    // Push the player left outside of the dummy if they collide
+    if (didPlayerAndDummyCollide)
+        player->x = dummy->x - 16;
+
+    return didPlayerAndDummyCollide;
+}
+
+void handleCurrentMoveHit(Move const *movePtr = NULL) {
+
+    if (movePtr == NULL)
+        movePtr = player.currentMove;
+        
+    player.currentMoveHit = true;
+
+    // Put the dummy in hitstun
+    dummy.stunnedFrames = movePtr->hitstunFrames - hitStunDecay;
+
+    // Set hitstop
+    hitStopFrames = 15;
+
+    // Increase comboCounter
+    ++comboCounter;
+    comboCounterDisplay = comboCounter;
+
+    comboDisplayTimer = 0;
+
+    // Calculate damage and add to comboDamage
+    uint16_t scaledDamage = movePtr->damage * comboDamageScale;
+    comboDamage += scaledDamage;
+    comboDamageDisplay = comboDamage;
+
+    currentHitDamage = scaledDamage;
+
+    if (comboDamageScale > 10) {
+        if (comboDamageScale > 50)
+            comboDamageScale -= 10;
+        else
+            comboDamageScale -= 5;
+    }
+
+    // Update hitStunDecay
+    ++hitStunDecay;
+}
+
 void handleCurrentMoveAndCollision() {
     // Check if player is executing a move and if that move colides with the dummy
     if (player.state == PlayerState::ExecutingMove) {
@@ -168,43 +240,17 @@ void handleCurrentMoveAndCollision() {
             dummy.hitbox.y = dummy.y;
 
             if (dummy.state != DummyState::Recovery && collision(&playerMoveHitbox, &dummy.hitbox)) {
-<<<<<<< HEAD
-                player.currentMoveHit = true;
-
-                // Put the dummy in hitstun
-                dummy.stunnedFrames = player.currentMove->hitstunFrames - hitStunDecay;
-
-                // Set hitstop
-                hitStopFrames = 12;
-
-                // Increase comboCounter
-                ++comboCounter;
-                comboCounterDisplay = comboCounter;
-
-                comboDisplayTimer = 0;
-
-                // Calculate damage and add to comboDamage
-                uint16_t scaledDamage = player.currentMove->damage * comboDamageScale;
-                comboDamage += scaledDamage;
-                comboDamageDisplay = comboDamage;
-
-                currentHitDamage = scaledDamage;
-
-                if (comboDamageScale > 10) {
-                    if (comboDamageScale > 50)
-                        comboDamageScale -= 10;
-                    else
-                        comboDamageScale -= 5;
-                }
-
-                // Update hitStunDecay
-                ++hitStunDecay;
-=======
                 handleCurrentMoveHit();
->>>>>>> parent of 1c45b85... Always draw the active sprite of a move on contact with the dummy (except for projectiles)
+                player.sprite = player.currentMove->activeSprite;
             }
         }
     }
+
+    if (dummy.state != DummyState::Recovery && collision(&fireballPtr->hitbox, &dummy.hitbox)) {
+        handleCurrentMoveHit(&MOVE_236A);
+        fireballPtr->despawnAfterHitstop = true;
+    }
+    
 }
 
 void updateDummy() {
@@ -298,9 +344,13 @@ void updateGame(uint8_t input) {
         setPlayerSprite();
         handlePlayerCrouching(input);
 
+        handleProjectiles(input);
+
         handleCurrentMoveAndCollision();
 
         updateDummy();
+
+        handlePlayerDummyCollision(&player, &dummy);
 
         preventOutofBounds();
         

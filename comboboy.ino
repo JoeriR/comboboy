@@ -43,7 +43,7 @@ void handleTitlescreen() {
         arduboy.print(F("Made by Joeri"));
 
         arduboy.setCursor(2, 22);
-        arduboy.print(F("V 0.0.1"));
+        arduboy.print(F("V 0.3"));
 
         arduboy.setCursor(10, 42);
         arduboy.print(F("Press A/B to play"));
@@ -128,6 +128,9 @@ void loop() {
     // Draw player and dummy
     ardbitmap.drawBitmap(player.x + player.xOffset, player.y + player.yOffset, player.sprite, 16, 24, WHITE, ALIGN_NONE, MIRROR_NONE);
     ardbitmap.drawBitmap(dummy.x, dummy.y, dummy.sprite, 16, 16, WHITE, ALIGN_NONE, MIRROR_NONE);
+
+    // Draw fireball
+    ardbitmap.drawBitmap(fireballPtr->x, fireballPtr->y, fireballPtr->sprite, 16, 24, WHITE, ALIGN_NONE, MIRROR_NONE);
 
     // Draw hitbox of active move
     if (player.state == PlayerState::ExecutingMove && getMoveState(player.currentMove, player.currentMoveFrameCounter) == MoveState::Active) {

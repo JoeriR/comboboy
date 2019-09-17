@@ -5,6 +5,7 @@
 
 #include "engine.h"
 #include "move.h"
+#include "projectile.h"
 #include "spriteData.h"
 
 void moveFunction5B() {
@@ -21,6 +22,16 @@ void moveFunction2B() {
         player.x += 2;
     if (getMoveState(player.currentMove, player.currentMoveFrameCounter) == MoveState::Recovery && player.currentMoveFrameCounter % 2 == 0) 
         ++player.x;
+}
+
+void moveFunction236A() {
+    if (!isProjectileOnScreen(fireballPtr) && getMoveState(player.currentMove, player.currentMoveFrameCounter) == MoveState::Recovery && player.currentMoveFrameCounter == player.currentMove->startupFrames + player.currentMove->activeFrames + 1) {
+        fireballPtr->x = player.x;
+        fireballPtr->y = player.y;
+        fireballPtr->damage = 12;
+        fireballPtr->direction = true;
+        fireballPtr->despawnAfterHitstop = false;
+    }
 }
 
 const Move MOVE_5A = {
@@ -92,6 +103,24 @@ const Move MOVE_2B = {
         yOffset: 11,
         width: 13,
         height: 13
+    }
+};
+
+const Move MOVE_236A = {
+    startupFrames: 15,
+    activeFrames: 2,
+    recoveryFrames: 20,
+    hitstunFrames: 45,
+    damage: 12,
+    startupSprite: PLAYER_236A_STARTUP,
+    activeSprite: PLAYER_236A_ACTIVE,
+    recoverySprite: PLAYER_236A_RECOVERY,
+    moveFunction: moveFunction236A,
+    hitboxData: ConstHitbox {   // 236A is launches a fireball that caries a hitbox, the move itself does not
+        xOffset: 0,
+        yOffset: 0,
+        width: 0,
+        height: 0
     }
 };
 
