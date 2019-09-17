@@ -241,6 +241,7 @@ void handleCurrentMoveAndCollision() {
 
             if (dummy.state != DummyState::Recovery && collision(&playerMoveHitbox, &dummy.hitbox)) {
                 handleCurrentMoveHit();
+                player.sprite = player.currentMove->activeSprite;
             }
         }
     }
