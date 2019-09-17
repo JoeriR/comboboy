@@ -168,6 +168,7 @@ void handleCurrentMoveAndCollision() {
             dummy.hitbox.y = dummy.y;
 
             if (dummy.state != DummyState::Recovery && collision(&playerMoveHitbox, &dummy.hitbox)) {
+<<<<<<< HEAD
                 player.currentMoveHit = true;
 
                 // Put the dummy in hitstun
@@ -198,6 +199,9 @@ void handleCurrentMoveAndCollision() {
 
                 // Update hitStunDecay
                 ++hitStunDecay;
+=======
+                handleCurrentMoveHit();
+>>>>>>> parent of 1c45b85... Always draw the active sprite of a move on contact with the dummy (except for projectiles)
             }
         }
     }
