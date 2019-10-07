@@ -66,23 +66,8 @@ Dummy dummy = {
 };
 
 
-// Projectile projectile = {
-//     x: 0,
-//     y: 0,
-//     damage: 0,
-//     direction: true,
-//     sprite: DUMMY_IDLE,
-//     hitbox: Hitbox {
-//         x: 0,
-//         y: 0,
-//         width: 0,
-//         height: 0
-//     }
-// };
 
 void handlePlayerPosition(uint8_t input) {
-    // TODO: Use the Player's Hitbox for collision detection against the walls and the dummy
-
     // Only allow the player to move if they're not holding down (are crouching)
     if (!(input & CB_DOWN_BUTTON)) {
         if (input & CB_RIGHT_BUTTON && player.state != PlayerState::ExecutingMove && player.crouchState != PlayerCrouchState::Crouching) {
