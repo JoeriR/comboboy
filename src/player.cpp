@@ -38,4 +38,16 @@ PlayerCrouchState getPlayerCrouchState(Player *player, uint8_t input) {
         return PlayerCrouchState::InBetween;
 }
 
+PlayerWalkState updatePlayerWalkFrame(Player *player) {
+    ++player->walkFrame;
+
+    if (player->walkFrame > WALK_1_FRAMES + WALK_2_FRAMES)
+        player->walkFrame = 0;
+
+    if (player->walkFrame < WALK_1_FRAMES) 
+        return PlayerWalkState::Walk1;
+    else
+        return PlayerWalkState::Walk2;
+}
+
 #endif
