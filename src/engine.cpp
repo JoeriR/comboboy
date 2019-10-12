@@ -40,6 +40,7 @@ Player player = {
     currentMoveFrameCounter: 0,
     state: PlayerState::Idle,
     crouchFrame: 0,
+    walkFrame: 0,
     crouchState: PlayerCrouchState::Standing,
     sprite: PLAYER_IDLE,
     hitbox: Hitbox {
@@ -66,32 +67,26 @@ Dummy dummy = {
 };
 
 
-// Projectile projectile = {
-//     x: 0,
-//     y: 0,
-//     damage: 0,
-//     direction: true,
-//     sprite: DUMMY_IDLE,
-//     hitbox: Hitbox {
-//         x: 0,
-//         y: 0,
-//         width: 0,
-//         height: 0
-//     }
-// };
 
 void handlePlayerPosition(uint8_t input) {
-    // TODO: Use the Player's Hitbox for collision detection against the walls and the dummy
+    PlayerWalkState playerWalkState = PlayerWalkState::Standing;
 
     // Only allow the player to move if they're not holding down (are crouching)
     if (!(input & CB_DOWN_BUTTON)) {
         if (input & CB_RIGHT_BUTTON && player.state != PlayerState::ExecutingMove && player.crouchState != PlayerCrouchState::Crouching) {
             ++player.x;
+            playerWalkState = updatePlayerWalkFrame(&player);
         }
 
         if (input & CB_LEFT_BUTTON && player.state != PlayerState::ExecutingMove && player.crouchState != PlayerCrouchState::Crouching) {
             --player.x;
+            playerWalkState = updatePlayerWalkFrame(&player);
         }
+
+        if (playerWalkState == PlayerWalkState::Walk1)
+            player.sprite = PLAYER_WALK_1;
+        else if (playerWalkState == PlayerWalkState::Walk2)
+            player.sprite = PLAYER_WALK_2;
     }
 }
 
