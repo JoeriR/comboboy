@@ -42,6 +42,7 @@ Player player = {
     crouchFrame: 0,
     walkFrame: 0,
     jumpFrame: 0,
+    jumpDirection: 0,
     crouchState: PlayerCrouchState::Standing,
     sprite: PLAYER_IDLE,
     hitbox: Hitbox {
@@ -134,9 +135,21 @@ void handlePlayerJumping(uint8_t input) {
         jumpState = updatePlayerJumpFrame(&player);
     }
 
+    if (jumpState != PlayerJumpState::Startup && player.jumpFrame % 4 > 0)
+        player.x += player.jumpDirection;
+
     switch (jumpState) {
         case PlayerJumpState::Startup : 
             player.sprite = PLAYER_JUMP_STARTUP; 
+
+            // Pick jumpDirection based on directional input
+            if (input & CB_RIGHT_BUTTON)
+                player.jumpDirection = 1;
+            else if (input & CB_LEFT_BUTTON)
+                player.jumpDirection = -1;
+            else
+                player.jumpDirection = 0;
+
             break;
         case PlayerJumpState::Ascending : 
             --player.y;
