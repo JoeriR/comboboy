@@ -41,6 +41,7 @@ Player player = {
     state: PlayerState::Idle,
     crouchFrame: 0,
     walkFrame: 0,
+    jumpFrame: 0,
     crouchState: PlayerCrouchState::Standing,
     sprite: PLAYER_IDLE,
     hitbox: Hitbox {
@@ -70,6 +71,10 @@ Dummy dummy = {
 
 void handlePlayerPosition(uint8_t input) {
     PlayerWalkState playerWalkState = PlayerWalkState::Standing;
+
+    // If the player is busy with jumping, prevent walking
+    if (player.jumpFrame > 0)
+        return;
 
     // Only allow the player to move if they're not holding down (are crouching)
     if (!(input & CB_DOWN_BUTTON)) {
@@ -108,6 +113,45 @@ void handlePlayerCrouching(uint8_t input) {
         player.sprite = PLAYER_CROUCH_INBETWEEN;
     if (crouchState == PlayerCrouchState::Crouching)
         player.sprite = PLAYER_CROUCH;
+}
+
+void handlePlayerLanding() {
+    if (player.jumpFrame > 10 && player.y >= 64 - 25)
+        player.jumpFrame = 0;
+}
+
+void handlePlayerJumping(uint8_t input) {
+    PlayerJumpState jumpState = PlayerJumpState::Standing;
+
+    // If the player is not in a jump state, then check if they initiated a jump
+    if (player.jumpFrame == 0) {
+        if (input & CB_UP_BUTTON)
+            jumpState = updatePlayerJumpFrame(&player);
+        else
+            return;
+    }
+    else {
+        jumpState = updatePlayerJumpFrame(&player);
+    }
+
+    switch (jumpState) {
+        case PlayerJumpState::Startup : 
+            player.sprite = PLAYER_JUMP_STARTUP; 
+            break;
+        case PlayerJumpState::Ascending : 
+            --player.y;
+            player.sprite = PLAYER_JUMP_ASCENDING;
+            break;
+        case PlayerJumpState::Floating : 
+            //++player.x;
+            player.sprite = PLAYER_JUMP_FLOATING;
+            break;
+        case PlayerJumpState::Falling : 
+            ++player.y;
+            player.sprite = PLAYER_JUMP_FALLING;
+            break;
+    }
+
 }
 
 void handleInputBuffer(uint8_t input) {
@@ -338,6 +382,9 @@ void updateGame(uint8_t input) {
 
         setPlayerSprite();
         handlePlayerCrouching(input);
+
+        handlePlayerLanding();
+        handlePlayerJumping(input);
 
         handleProjectiles(input);
 
