@@ -175,18 +175,27 @@ void handleInputBuffer(uint8_t input) {
 
     pushIntoBuffer(input);
 
+    // Check to see if they player is allowed to perform a move
     if (player.state != PlayerState::ExecutingMove || player.currentMoveHit) {
         
-        if (detectQuarterCircleForward() && input & CB_A_BUTTON)
-            playerExecuteMove(&player, &MOVE_236A);
-        else if (input & CB_DOWN_BUTTON && input & CB_A_BUTTON)
-            playerExecuteMove(&player, &MOVE_2A);
-        else if (input & CB_A_BUTTON) 
-            playerExecuteMove(&player, &MOVE_5A);
-        else if (input & CB_DOWN_BUTTON && input & CB_B_BUTTON)
-            playerExecuteMove(&player, &MOVE_2B);
-        else if (input & CB_B_BUTTON)
-            playerExecuteMove(&player, &MOVE_5B);
+        // Grounded moves
+        if (player.jumpFrame == 0) {
+            if (detectQuarterCircleForward() && input & CB_A_BUTTON)
+                playerExecuteMove(&player, &MOVE_236A);
+            else if (input & CB_DOWN_BUTTON && input & CB_A_BUTTON)
+                playerExecuteMove(&player, &MOVE_2A);
+            else if (input & CB_A_BUTTON) 
+                playerExecuteMove(&player, &MOVE_5A);
+            else if (input & CB_DOWN_BUTTON && input & CB_B_BUTTON)
+                playerExecuteMove(&player, &MOVE_2B);
+            else if (input & CB_B_BUTTON)
+                playerExecuteMove(&player, &MOVE_5B);
+        }
+        else {
+            // Airborne moves
+            // TODO: Implement atleast 1 airborne move (like j.A or j.B)
+            
+        }
     }
 }
 
