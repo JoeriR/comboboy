@@ -194,7 +194,8 @@ void handleInputBuffer(uint8_t input) {
         else {
             // Airborne moves
             // TODO: Implement atleast 1 airborne move (like j.A or j.B)
-            
+            if (input & CB_A_BUTTON)
+                playerExecuteMove(&player, &MOVE_J_5A);
         }
     }
 }
