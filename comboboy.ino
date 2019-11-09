@@ -70,6 +70,13 @@ void updateInput() {
         input += CB_B_BUTTON;
 }
 
+inline uint8_t handleMirroring(bool direction) {
+    if (direction)
+        return MIRROR_NONE;
+    else
+        return MIRROR_HORIZONTAL;
+}
+
 void setup() {
     arduboy.boot();
     arduboy.setFrameRate(FRAME_RATE);
@@ -126,21 +133,27 @@ void loop() {
     arduboy.print(F("Comboboy WIP - Joeri"));
 
     // Draw player and dummy
-    ardbitmap.drawBitmap(player.x + player.xOffset, player.y + player.yOffset, player.sprite, 16, 24, WHITE, ALIGN_NONE, MIRROR_NONE);
-    ardbitmap.drawBitmap(dummy.x, dummy.y, dummy.sprite, 16, 16, WHITE, ALIGN_NONE, MIRROR_NONE);
+    ardbitmap.drawBitmap(player.x + player.xOffset, player.y + player.yOffset, player.sprite, 16, 24, WHITE, ALIGN_NONE, handleMirroring(player.direction));
+    ardbitmap.drawBitmap(dummy.x, dummy.y, dummy.sprite, 16, 16, WHITE, ALIGN_NONE, handleMirroring(!player.direction));
 
     // Draw fireball
-    ardbitmap.drawBitmap(fireballPtr->x, fireballPtr->y, fireballPtr->sprite, 16, 24, WHITE, ALIGN_NONE, MIRROR_NONE);
+    ardbitmap.drawBitmap(fireballPtr->x, fireballPtr->y, fireballPtr->sprite, 16, 24, WHITE, ALIGN_NONE, handleMirroring(fireballPtr->direction));
 
     // Draw hitbox of active move
     if (player.state == PlayerState::ExecutingMove && getMoveState(player.currentMove, player.currentMoveFrameCounter) == MoveState::Active) {
 
+        uint8_t xPositionHitbox;
+            if (player.direction)
+                xPositionHitbox = player.x + player.currentMove->hitboxData.xOffset;
+            else
+                xPositionHitbox = player.x + 16 - player.currentMove->hitboxData.xOffset - player.currentMove->hitboxData.width;
+            
         Hitbox tempHitbox = {
-            x: player.x + player.currentMove->hitboxData.xOffset,
-            y: player.y + player.currentMove->hitboxData.yOffset,
-            width: player.currentMove->hitboxData.width,
-            height: player.currentMove->hitboxData.height
-        };
+            x : xPositionHitbox,
+            y : player.y + player.currentMove->hitboxData.yOffset,
+            width : player.currentMove->hitboxData.width,
+            height : player.currentMove->hitboxData.height
+        }; 
 
         //arduboy.drawRect(tempHitbox.x, tempHitbox.y, tempHitbox.width, tempHitbox.height);
     }

@@ -10,18 +10,18 @@
 
 void moveFunction5B() {
     if (getMoveState(player.currentMove, player.currentMoveFrameCounter) == MoveState::Active) {
-        ++player.x;
+        playerMoveForwards(&player, 1);
         player.xOffset = -4;
     }
 }
 
 void moveFunction2B() {
     if (getMoveState(player.currentMove, player.currentMoveFrameCounter) == MoveState::Startup && player.currentMoveFrameCounter % 3 == 0) 
-        ++player.x;
+        playerMoveForwards(&player, 1);
     if (getMoveState(player.currentMove, player.currentMoveFrameCounter) == MoveState::Active) 
-        player.x += 2;
+        playerMoveForwards(&player, 2);
     if (getMoveState(player.currentMove, player.currentMoveFrameCounter) == MoveState::Recovery && player.currentMoveFrameCounter % 2 == 0) 
-        ++player.x;
+        playerMoveForwards(&player, 1);
 }
 
 void moveFunction236A() {
@@ -29,7 +29,7 @@ void moveFunction236A() {
         fireballPtr->x = player.x;
         fireballPtr->y = player.y;
         fireballPtr->damage = 12;
-        fireballPtr->direction = true;
+        fireballPtr->direction = player.direction;
         fireballPtr->despawnAfterHitstop = false;
     }
 }
@@ -116,7 +116,7 @@ const Move MOVE_236A = {
     activeSprite: PLAYER_236A_ACTIVE,
     recoverySprite: PLAYER_236A_RECOVERY,
     moveFunction: moveFunction236A,
-    hitboxData: ConstHitbox {   // 236A is launches a fireball that caries a hitbox, the move itself does not
+    hitboxData: ConstHitbox {   // 236A launches a fireball that caries a hitbox, the move itself does not
         xOffset: 0,
         yOffset: 0,
         width: 0,
