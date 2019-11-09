@@ -12,11 +12,11 @@
 #define WALK_2_FRAMES 4
 
 #define JUMP_STARTUP_FRAMES 4
-#define JUMP_ASCENDING_FRAMES 15
+#define JUMP_ASCENDING_FRAMES 18
 #define JUMP_FLOATING_FRAMES 20
 
 enum class PlayerState { Idle, Dashing, ExecutingMove };
-enum class PlayerCrouchState { Standing, InBetween, Crouching, };
+enum class PlayerCrouchState { Standing, InBetween, Crouching };
 enum class PlayerWalkState { Standing, Walk1, Walk2 };
 enum class PlayerJumpState { Standing, Startup, Ascending, Floating, Falling };
 

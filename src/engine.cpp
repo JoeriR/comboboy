@@ -244,13 +244,16 @@ void handleProjectiles(uint8_t input) {
 
 // TODO: Currently only works properly when the player is facing right
 bool handlePlayerDummyCollision(Player *player, Dummy *dummy) {
-    bool didPlayerAndDummyCollide = isPointInBox(player->x + 16, player->y + 8, &dummy->hitbox) || isPointInBox(player->x + 16, player->y + 16, &dummy->hitbox) || isPointInBox(player->x + 16, player->y + 24, &dummy->hitbox);
+    bool didPlayerAndDummyCollidePlayerRightSide = isPointInBox(player->x + 16, player->y + 8, &dummy->hitbox) || isPointInBox(player->x + 16, player->y + 16, &dummy->hitbox) || isPointInBox(player->x + 16, player->y + 24, &dummy->hitbox);
+    bool didPlayerAndDummyCollidePlayerLeftSide = isPointInBox(player->x, player->y + 8, &dummy->hitbox) || isPointInBox(player->x, player->y + 16, &dummy->hitbox) || isPointInBox(player->x, player->y + 24, &dummy->hitbox);
 
     // Push the player left outside of the dummy if they collide
-    if (didPlayerAndDummyCollide)
+    if (didPlayerAndDummyCollidePlayerRightSide)
         player->x = dummy->x - 16;
+    else if (didPlayerAndDummyCollidePlayerLeftSide)
+        player->x = dummy->x + 16;
 
-    return didPlayerAndDummyCollide;
+    return didPlayerAndDummyCollidePlayerRightSide || didPlayerAndDummyCollidePlayerLeftSide;
 }
 
 void handleCurrentMoveHit(Move const *movePtr = NULL) {
