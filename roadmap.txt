@@ -1,0 +1,16 @@
+Features to add in version 0.4:
+    - Jumping
+    - Double jump
+    - Air normals: j.5A and j.5B
+    - Side switching
+    - Knockback on-hit
+    - 214x inputs (quarter circle back)
+    - Title screen
+
+
+Features to add in Version 0.5:
+    - 623x inputs (DP motion)
+    - 41236x inputs (half circle forward)
+    - A super move (cinematic move)
+    - Remember moves used in a combo in order to adjust hitstun scaling properly
+    
