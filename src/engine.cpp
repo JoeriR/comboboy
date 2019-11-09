@@ -36,6 +36,7 @@ Player player = {
     y: 64 - 25,
     xOffset: 0,
     yOffset: 0,
+    direction: true,
     currentMove: nullptr,
     currentMoveFrameCounter: 0,
     state: PlayerState::Idle,
@@ -54,7 +55,7 @@ Player player = {
 };
 
 Dummy dummy = {
-    x: 96,
+    x: 64,
     y: 64 - 17,
     stunnedFrames: 0,
     recoveryFrames: 0,
@@ -68,7 +69,31 @@ Dummy dummy = {
     }
 };
 
+inline uint8_t getInvertedHorizontalInput(uint8_t input) {
+    uint8_t inputCopy = input;
 
+    // Copy the value of input's left_button bit to inputCopy's right_button bit
+    if (input & CB_LEFT_BUTTON)
+        inputCopy = inputCopy | CB_RIGHT_BUTTON;        // Set the right_button bit to TRUE with a bitmask
+    else
+        inputCopy = inputCopy & (~CB_RIGHT_BUTTON);     // Set the right_button bit to FALSE with a bitmask
+    
+    // Do the same for the value of input's right_button bit
+    if (input & CB_RIGHT_BUTTON)
+        inputCopy = inputCopy | CB_LEFT_BUTTON;
+    else
+        inputCopy = inputCopy & (~CB_LEFT_BUTTON);
+    
+    return inputCopy;
+}
+
+// Decide's the direction which the Player will be facing during this frame
+inline void updatePlayerDirections() {
+    if (player.direction && player.x > dummy.x + 15)
+        player.direction = false;
+    else if (player.x + 16 < dummy.x)
+        player.direction = true;
+}
 
 void handlePlayerPosition(uint8_t input) {
     PlayerWalkState playerWalkState = PlayerWalkState::Standing;
@@ -77,15 +102,20 @@ void handlePlayerPosition(uint8_t input) {
     if (player.jumpFrame > 0)
         return;
 
+    if (input & CB_B_BUTTON) {
+            Serial.print(input, BIN);
+            Serial.print("\n\n");
+        }
+
     // Only allow the player to move if they're not holding down (are crouching)
-    if (!(input & CB_DOWN_BUTTON)) {
-        if (input & CB_RIGHT_BUTTON && player.state != PlayerState::ExecutingMove && player.crouchState != PlayerCrouchState::Crouching) {
-            ++player.x;
+    if (!(input & CB_DOWN_BUTTON) && player.state != PlayerState::ExecutingMove && player.crouchState != PlayerCrouchState::Crouching) {
+        if (input & CB_RIGHT_BUTTON) {
+            playerMoveForwards(&player, 1);
             playerWalkState = updatePlayerWalkFrame(&player);
         }
 
-        if (input & CB_LEFT_BUTTON && player.state != PlayerState::ExecutingMove && player.crouchState != PlayerCrouchState::Crouching) {
-            --player.x;
+        if (input & CB_LEFT_BUTTON) {
+            playerMoveBackwards(&player, 1);
             playerWalkState = updatePlayerWalkFrame(&player);
         }
 
@@ -149,6 +179,10 @@ void handlePlayerJumping(uint8_t input) {
                 player.jumpDirection = -1;
             else
                 player.jumpDirection = 0;
+
+            // Invert jumpDirection if the player is facing left
+            if (!player.direction)
+                player.jumpDirection *= -1;
 
             break;
         case PlayerJumpState::Ascending : 
@@ -242,7 +276,6 @@ void handleProjectiles(uint8_t input) {
     updateFireball(fireballPtr);
 }
 
-// TODO: Currently only works properly when the player is facing right
 bool handlePlayerDummyCollision(Player *player, Dummy *dummy) {
     bool didPlayerAndDummyCollidePlayerRightSide = isPointInBox(player->x + 16, player->y + 8, &dummy->hitbox) || isPointInBox(player->x + 16, player->y + 16, &dummy->hitbox) || isPointInBox(player->x + 16, player->y + 24, &dummy->hitbox);
     bool didPlayerAndDummyCollidePlayerLeftSide = isPointInBox(player->x, player->y + 8, &dummy->hitbox) || isPointInBox(player->x, player->y + 16, &dummy->hitbox) || isPointInBox(player->x, player->y + 24, &dummy->hitbox);
@@ -302,8 +335,16 @@ void handleCurrentMoveAndCollision() {
             player.currentMove->moveFunction();
 
         if (getMoveState(player.currentMove, player.currentMoveFrameCounter) == MoveState::Active && !player.currentMoveHit) {
+            
+            // Decide the x position of the Hitbox 
+            uint8_t xPositionHitbox;
+            if (player.direction)
+                xPositionHitbox = player.x + player.currentMove->hitboxData.xOffset;
+            else
+                xPositionHitbox = player.x + 16 - player.currentMove->hitboxData.xOffset - player.currentMove->hitboxData.width;
+            
             Hitbox playerMoveHitbox = {
-                x : player.x + player.currentMove->hitboxData.xOffset,
+                x : xPositionHitbox,
                 y : player.y + player.currentMove->hitboxData.yOffset,
                 width : player.currentMove->hitboxData.width,
                 height : player.currentMove->hitboxData.height
@@ -312,6 +353,7 @@ void handleCurrentMoveAndCollision() {
             dummy.hitbox.x = dummy.x;
             dummy.hitbox.y = dummy.y;
 
+            // Collision detection between the Hitbox and the Dummy
             if (dummy.state != DummyState::Recovery && collision(&playerMoveHitbox, &dummy.hitbox)) {
                 handleCurrentMoveHit();
                 player.sprite = player.currentMove->activeSprite;
@@ -402,6 +444,13 @@ void updateGame(uint8_t input) {
     // Force player sprite to be idle if state is idle, just in case
     if (player.state == PlayerState::Idle) {
         player.sprite = PLAYER_IDLE;
+    }
+
+    updatePlayerDirections();
+
+    // Invert directions if the player is facing left
+    if (!player.direction) {
+        input = getInvertedHorizontalInput(input);
     }
 
     handleInputBuffer(input);

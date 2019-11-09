@@ -20,6 +20,20 @@ void playerExecuteMove(Player *player, Move const *move) {
     player->state = PlayerState::ExecutingMove;
 }
 
+void playerMoveForwards(Player *player, uint8_t pixelsForward) {
+    if (player->direction)
+        player->x += pixelsForward;
+    else
+        player->x -= pixelsForward;
+}
+
+void playerMoveBackwards(Player *player, uint8_t pixelsBackward) {
+    if (player->direction)
+        player->x -= pixelsBackward;
+    else
+        player->x += pixelsBackward;
+}
+
 // crouchFrame decides the PlayerCrouchState that we're in
 PlayerCrouchState getPlayerCrouchState(Player *player, uint8_t input) {
     if (input & CB_DOWN_BUTTON && player->state == PlayerState::Idle && player->crouchFrame < CROUCH_FRAME_LIMIT)

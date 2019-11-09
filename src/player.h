@@ -25,6 +25,7 @@ typedef struct Player {
     uint8_t y;
     int8_t xOffset;
     int8_t yOffset;
+    uint8_t direction;
     Move const *currentMove;
     uint8_t currentMoveFrameCounter;
     PlayerState state;
@@ -40,6 +41,10 @@ typedef struct Player {
 
 void playerSetIdle(Player *player);
 void playerExecuteMove(Player *player, Move const *move);
+
+void playerMoveForwards(Player *player, uint8_t pixelsForward);
+
+void playerMoveBackwards(Player *player, uint8_t pixelsBackward);
 
 PlayerCrouchState getPlayerCrouchState(Player *player, uint8_t input);
 PlayerWalkState updatePlayerWalkFrame(Player *player);
