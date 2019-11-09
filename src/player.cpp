@@ -50,4 +50,17 @@ PlayerWalkState updatePlayerWalkFrame(Player *player) {
         return PlayerWalkState::Walk2;
 }
 
+PlayerJumpState updatePlayerJumpFrame(Player *player) {
+    ++player->jumpFrame;
+
+    if (player->jumpFrame <= JUMP_STARTUP_FRAMES) 
+        return PlayerJumpState::Startup;
+    else if (player->jumpFrame < JUMP_STARTUP_FRAMES + JUMP_ASCENDING_FRAMES)
+        return PlayerJumpState::Ascending;
+    else if (player->jumpFrame < JUMP_STARTUP_FRAMES + JUMP_ASCENDING_FRAMES + JUMP_FLOATING_FRAMES)
+        return PlayerJumpState::Floating;
+    else 
+        return PlayerJumpState::Falling;
+}
+
 #endif
