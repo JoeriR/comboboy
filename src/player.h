@@ -11,9 +11,14 @@
 #define WALK_1_FRAMES 4
 #define WALK_2_FRAMES 4
 
+#define JUMP_STARTUP_FRAMES 4
+#define JUMP_ASCENDING_FRAMES 18
+#define JUMP_FLOATING_FRAMES 20
+
 enum class PlayerState { Idle, Dashing, ExecutingMove };
-enum class PlayerCrouchState { Standing, InBetween, Crouching, };
+enum class PlayerCrouchState { Standing, InBetween, Crouching };
 enum class PlayerWalkState { Standing, Walk1, Walk2 };
+enum class PlayerJumpState { Standing, Startup, Ascending, Floating, Falling };
 
 typedef struct Player {
     uint8_t x;
@@ -25,6 +30,8 @@ typedef struct Player {
     PlayerState state;
     uint8_t crouchFrame;
     uint8_t walkFrame;
+    uint8_t jumpFrame;
+    int8_t jumpDirection;   // 0 for neutral jump, 1 or -1 for directional jumps
     PlayerCrouchState crouchState;
     uint8_t const *sprite;
     Hitbox hitbox;
@@ -36,5 +43,6 @@ void playerExecuteMove(Player *player, Move const *move);
 
 PlayerCrouchState getPlayerCrouchState(Player *player, uint8_t input);
 PlayerWalkState updatePlayerWalkFrame(Player *player);
+PlayerJumpState updatePlayerJumpFrame(Player *player);
 
 #endif

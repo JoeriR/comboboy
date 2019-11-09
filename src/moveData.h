@@ -124,6 +124,24 @@ const Move MOVE_236A = {
     }
 };
 
+const Move MOVE_J_5A = {
+    startupFrames: 6,
+    activeFrames: 3,
+    recoveryFrames: 12,
+    hitstunFrames: 24,
+    damage: 5,
+    startupSprite: PLAYER_J_5A_STARTUP,
+    activeSprite: PLAYER_J_5A_ACTIVE,
+    recoverySprite: PLAYER_J_5A_RECOVERY,
+    moveFunction: nullptr,
+    hitboxData: ConstHitbox {
+        xOffset: 8,
+        yOffset: 0,
+        width: 14,
+        height: 20
+    }
+};
+
 #endif
 
 /*

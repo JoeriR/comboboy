@@ -41,6 +41,8 @@ Player player = {
     state: PlayerState::Idle,
     crouchFrame: 0,
     walkFrame: 0,
+    jumpFrame: 0,
+    jumpDirection: 0,
     crouchState: PlayerCrouchState::Standing,
     sprite: PLAYER_IDLE,
     hitbox: Hitbox {
@@ -70,6 +72,10 @@ Dummy dummy = {
 
 void handlePlayerPosition(uint8_t input) {
     PlayerWalkState playerWalkState = PlayerWalkState::Standing;
+
+    // If the player is busy with jumping, prevent walking
+    if (player.jumpFrame > 0)
+        return;
 
     // Only allow the player to move if they're not holding down (are crouching)
     if (!(input & CB_DOWN_BUTTON)) {
@@ -110,6 +116,57 @@ void handlePlayerCrouching(uint8_t input) {
         player.sprite = PLAYER_CROUCH;
 }
 
+void handlePlayerLanding() {
+    if (player.jumpFrame > 10 && player.y >= 64 - 25)
+        player.jumpFrame = 0;
+}
+
+void handlePlayerJumping(uint8_t input) {
+    PlayerJumpState jumpState = PlayerJumpState::Standing;
+
+    // If the player is not in a jump state, then check if they initiated a jump
+    if (player.jumpFrame == 0) {
+        if (input & CB_UP_BUTTON)
+            jumpState = updatePlayerJumpFrame(&player);
+        else
+            return;
+    }
+    else {
+        jumpState = updatePlayerJumpFrame(&player);
+    }
+
+    if (jumpState != PlayerJumpState::Startup && player.jumpFrame % 4 > 0)
+        player.x += player.jumpDirection;
+
+    switch (jumpState) {
+        case PlayerJumpState::Startup : 
+            player.sprite = PLAYER_JUMP_STARTUP; 
+
+            // Pick jumpDirection based on directional input
+            if (input & CB_RIGHT_BUTTON)
+                player.jumpDirection = 1;
+            else if (input & CB_LEFT_BUTTON)
+                player.jumpDirection = -1;
+            else
+                player.jumpDirection = 0;
+
+            break;
+        case PlayerJumpState::Ascending : 
+            --player.y;
+            player.sprite = PLAYER_JUMP_ASCENDING;
+            break;
+        case PlayerJumpState::Floating : 
+            //++player.x;
+            player.sprite = PLAYER_JUMP_FLOATING;
+            break;
+        case PlayerJumpState::Falling : 
+            ++player.y;
+            player.sprite = PLAYER_JUMP_FALLING;
+            break;
+    }
+
+}
+
 void handleInputBuffer(uint8_t input) {
     // Decide which move to execute depenging on the player's input and state
     // The Player can execute new moves if they're not currently performing a move.
@@ -118,18 +175,28 @@ void handleInputBuffer(uint8_t input) {
 
     pushIntoBuffer(input);
 
+    // Check to see if they player is allowed to perform a move
     if (player.state != PlayerState::ExecutingMove || player.currentMoveHit) {
         
-        if (detectQuarterCircleForward() && input & CB_A_BUTTON)
-            playerExecuteMove(&player, &MOVE_236A);
-        else if (input & CB_DOWN_BUTTON && input & CB_A_BUTTON)
-            playerExecuteMove(&player, &MOVE_2A);
-        else if (input & CB_A_BUTTON) 
-            playerExecuteMove(&player, &MOVE_5A);
-        else if (input & CB_DOWN_BUTTON && input & CB_B_BUTTON)
-            playerExecuteMove(&player, &MOVE_2B);
-        else if (input & CB_B_BUTTON)
-            playerExecuteMove(&player, &MOVE_5B);
+        // Grounded moves
+        if (player.jumpFrame == 0) {
+            if (detectQuarterCircleForward() && input & CB_A_BUTTON)
+                playerExecuteMove(&player, &MOVE_236A);
+            else if (input & CB_DOWN_BUTTON && input & CB_A_BUTTON)
+                playerExecuteMove(&player, &MOVE_2A);
+            else if (input & CB_A_BUTTON) 
+                playerExecuteMove(&player, &MOVE_5A);
+            else if (input & CB_DOWN_BUTTON && input & CB_B_BUTTON)
+                playerExecuteMove(&player, &MOVE_2B);
+            else if (input & CB_B_BUTTON)
+                playerExecuteMove(&player, &MOVE_5B);
+        }
+        else {
+            // Airborne moves
+            // TODO: Implement atleast 1 airborne move (like j.A or j.B)
+            if (input & CB_A_BUTTON)
+                playerExecuteMove(&player, &MOVE_J_5A);
+        }
     }
 }
 
@@ -139,7 +206,15 @@ void setPlayerSprite() {
         // If the move has ended, return the player to idle state
         // Else, continue executing the move
         if (player.currentMoveFrameCounter >= player.currentMove->startupFrames + player.currentMove->activeFrames + player.currentMove->recoveryFrames) {
+            // Create a backup of the current move and sprite
+            const Move *moveCopyPtr = player.currentMove;
+            uint8_t const *spriteCopyPtr = player.sprite;
+
             playerSetIdle(&player);
+
+            // Set the player back to the sprite they were on before
+            if (moveCopyPtr == &MOVE_2A)
+                player.sprite = spriteCopyPtr;
         }
         else {
             MoveState moveState = getMoveState(player.currentMove, player.currentMoveFrameCounter);
@@ -169,13 +244,16 @@ void handleProjectiles(uint8_t input) {
 
 // TODO: Currently only works properly when the player is facing right
 bool handlePlayerDummyCollision(Player *player, Dummy *dummy) {
-    bool didPlayerAndDummyCollide = isPointInBox(player->x + 16, player->y + 8, &dummy->hitbox) || isPointInBox(player->x + 16, player->y + 16, &dummy->hitbox) || isPointInBox(player->x + 16, player->y + 24, &dummy->hitbox);
+    bool didPlayerAndDummyCollidePlayerRightSide = isPointInBox(player->x + 16, player->y + 8, &dummy->hitbox) || isPointInBox(player->x + 16, player->y + 16, &dummy->hitbox) || isPointInBox(player->x + 16, player->y + 24, &dummy->hitbox);
+    bool didPlayerAndDummyCollidePlayerLeftSide = isPointInBox(player->x, player->y + 8, &dummy->hitbox) || isPointInBox(player->x, player->y + 16, &dummy->hitbox) || isPointInBox(player->x, player->y + 24, &dummy->hitbox);
 
     // Push the player left outside of the dummy if they collide
-    if (didPlayerAndDummyCollide)
+    if (didPlayerAndDummyCollidePlayerRightSide)
         player->x = dummy->x - 16;
+    else if (didPlayerAndDummyCollidePlayerLeftSide)
+        player->x = dummy->x + 16;
 
-    return didPlayerAndDummyCollide;
+    return didPlayerAndDummyCollidePlayerRightSide || didPlayerAndDummyCollidePlayerLeftSide;
 }
 
 void handleCurrentMoveHit(Move const *movePtr = NULL) {
@@ -336,8 +414,12 @@ void updateGame(uint8_t input) {
         player.yOffset = 0;
         handlePlayerPosition(input);
 
-        setPlayerSprite();
         handlePlayerCrouching(input);
+
+        handlePlayerLanding();
+        handlePlayerJumping(input);
+
+        setPlayerSprite();
 
         handleProjectiles(input);
 
