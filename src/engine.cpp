@@ -206,7 +206,15 @@ void setPlayerSprite() {
         // If the move has ended, return the player to idle state
         // Else, continue executing the move
         if (player.currentMoveFrameCounter >= player.currentMove->startupFrames + player.currentMove->activeFrames + player.currentMove->recoveryFrames) {
+            // Create a backup of the current move and sprite
+            const Move *moveCopyPtr = player.currentMove;
+            uint8_t const *spriteCopyPtr = player.sprite;
+
             playerSetIdle(&player);
+
+            // Set the player back to the sprite they were on before
+            if (moveCopyPtr == &MOVE_2A)
+                player.sprite = spriteCopyPtr;
         }
         else {
             MoveState moveState = getMoveState(player.currentMove, player.currentMoveFrameCounter);
@@ -403,11 +411,12 @@ void updateGame(uint8_t input) {
         player.yOffset = 0;
         handlePlayerPosition(input);
 
-        setPlayerSprite();
         handlePlayerCrouching(input);
 
         handlePlayerLanding();
         handlePlayerJumping(input);
+
+        setPlayerSprite();
 
         handleProjectiles(input);
 
