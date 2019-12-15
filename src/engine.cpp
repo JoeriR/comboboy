@@ -6,6 +6,7 @@
 #include "engine.h"
 #include "hitbox.h"
 #include "input.h"
+#include "knockbackData.h"
 #include "move.h"
 #include "moveData.h"
 #include "player.h"
@@ -68,13 +69,7 @@ Dummy dummy = {
         width: 16,
         height: 16
     },
-    knockback: Knockback {
-        horizontalDistance: 0,
-        verticalDistance: 0,
-        ticksPerFrame: 0,
-        tickLimit: 0,
-        knockbackFunction: nullptr
-    }
+    knockback: knockback_default
 };
 
 inline uint8_t getInvertedHorizontalInput(uint8_t input) {

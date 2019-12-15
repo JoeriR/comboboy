@@ -5,6 +5,7 @@
 
 #include "engine.h"
 #include "knockback.h"
+#include "knockbackData.h"
 #include "move.h"
 #include "projectile.h"
 #include "spriteData.h"
@@ -16,16 +17,7 @@ void moveFunction5B() {
     }
 
     if (player.currentMoveFrameCounter == 1) {
-
-        Knockback knockback = Knockback {
-            horizontalDistance: 2,
-            verticalDistance: 0,
-            ticksPerFrame: 1,
-            tickLimit: 10,
-            knockbackFunction: nullptr
-        };
-
-        setKnockback(&knockback);
+        setKnockback(&knockback_5B);
     }
 }
 
