@@ -318,6 +318,12 @@ void handleCurrentMoveHit(Move const *movePtr = NULL) {
     // Put the dummy in hitstun
     dummy.stunnedFrames = movePtr->hitstunFrames - hitStunDecay;
 
+    // Set knockback on the dummy
+    if (movePtr->knockback != nullptr)
+        setKnockback(movePtr->knockback);
+    else
+        setKnockback(&knockback_default);
+
     // Set hitstop
     hitStopFrames = 15;
 

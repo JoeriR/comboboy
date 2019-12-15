@@ -15,10 +15,6 @@ void moveFunction5B() {
         playerMoveForwards(&player, 1);
         player.xOffset = -4;
     }
-
-    if (player.currentMoveFrameCounter == 1) {
-        setKnockback(&knockback_5B);
-    }
 }
 
 void moveFunction2B() {
@@ -50,6 +46,7 @@ const Move MOVE_5A = {
     activeSprite: PLAYER_5A_ACTIVE,
     recoverySprite: PLAYER_5A_RECOVERY,
     moveFunction: nullptr,
+    knockback: nullptr,
     hitboxData: ConstHitbox {
         xOffset: 8,
         yOffset: 0,
@@ -68,6 +65,7 @@ const Move MOVE_5B = {
     activeSprite: PLAYER_5B_ACTIVE,
     recoverySprite: PLAYER_5B_RECOVERY,
     moveFunction: moveFunction5B,
+    knockback: &knockback_5B,
     hitboxData: ConstHitbox {
         xOffset: 8,
         yOffset: 0,
@@ -86,6 +84,7 @@ const Move MOVE_2A = {
     activeSprite: PLAYER_2A_ACTIVE,
     recoverySprite: PLAYER_2A_RECOVERY,
     moveFunction: nullptr,
+    knockback: nullptr,
     hitboxData: ConstHitbox {
         xOffset: 12,
         yOffset: 17,
@@ -104,6 +103,7 @@ const Move MOVE_2B = {
     activeSprite: PLAYER_2B_ACTIVE,
     recoverySprite: PLAYER_2B_RECOVERY,
     moveFunction: moveFunction2B,
+    knockback: nullptr,
     hitboxData: ConstHitbox {
         xOffset: 6,
         yOffset: 11,
@@ -122,6 +122,7 @@ const Move MOVE_236A = {
     activeSprite: PLAYER_236A_ACTIVE,
     recoverySprite: PLAYER_236A_RECOVERY,
     moveFunction: moveFunction236A,
+    knockback: nullptr,
     hitboxData: ConstHitbox {   // 236A launches a fireball that caries a hitbox, the move itself does not
         xOffset: 0,
         yOffset: 0,
@@ -140,6 +141,7 @@ const Move MOVE_J_5A = {
     activeSprite: PLAYER_J_5A_ACTIVE,
     recoverySprite: PLAYER_J_5A_RECOVERY,
     moveFunction: nullptr,
+    knockback: nullptr,
     hitboxData: ConstHitbox {
         xOffset: 8,
         yOffset: 0,
