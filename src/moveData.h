@@ -165,6 +165,7 @@ const Move MOVE_ = {
     activeSprite: PLAYER__ACTIVE,
     recoverySprite: PLAYER__RECOVERY,
     moveFunction: nullptr,
+    knockback: nullptr,
     hitboxData: ConstHitbox {
         xOffset: ,
         yOffset: ,
