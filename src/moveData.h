@@ -4,6 +4,7 @@
 #include <avr/pgmspace.h>
 
 #include "engine.h"
+#include "knockback.h"
 #include "move.h"
 #include "projectile.h"
 #include "spriteData.h"
@@ -12,6 +13,19 @@ void moveFunction5B() {
     if (getMoveState(player.currentMove, player.currentMoveFrameCounter) == MoveState::Active) {
         playerMoveForwards(&player, 1);
         player.xOffset = -4;
+    }
+
+    if (player.currentMoveFrameCounter == 1) {
+
+        Knockback knockback = Knockback {
+            horizontalDistance: 2,
+            verticalDistance: 0,
+            ticksPerFrame: 1,
+            tickLimit: 10,
+            knockbackFunction: nullptr
+        };
+
+        setKnockback(&knockback);
     }
 }
 

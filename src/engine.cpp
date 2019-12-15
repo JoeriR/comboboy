@@ -59,6 +59,7 @@ Dummy dummy = {
     y: 64 - 17,
     stunnedFrames: 0,
     recoveryFrames: 0,
+    knockbackTick: 0,
     state: DummyState::Idle,
     sprite: DUMMY_IDLE,
     hitbox: Hitbox {
@@ -66,6 +67,13 @@ Dummy dummy = {
         y: 64 - 17,
         width: 16,
         height: 16
+    },
+    knockback: Knockback {
+        horizontalDistance: 0,
+        verticalDistance: 0,
+        ticksPerFrame: 0,
+        tickLimit: 0,
+        knockbackFunction: nullptr
     }
 };
 
@@ -85,6 +93,22 @@ inline uint8_t getInvertedHorizontalInput(uint8_t input) {
         inputCopy = inputCopy & (~CB_LEFT_BUTTON);
     
     return inputCopy;
+}
+
+void applyKnockback(Knockback *knockback, Dummy *dummy) {
+    if (knockback->knockbackFunction != nullptr) {
+        knockback->knockbackFunction();
+    }
+    else {
+        dummy->knockbackTick += knockback->ticksPerFrame;
+
+        if (dummy->knockbackTick > knockback->tickLimit) {
+            dummy->x += knockback->horizontalDistance;
+            dummy->y += knockback->verticalDistance;
+
+            dummy->knockbackTick = dummy->knockbackTick % knockback->tickLimit;
+        }
+    }
 }
 
 // Decide's the direction which the Player will be facing during this frame
@@ -368,6 +392,13 @@ void handleCurrentMoveAndCollision() {
     
 }
 
+void handleKnockback() {
+    // TODO: improve checks
+    if (dummy.state == DummyState::Hit && dummy.knockback.horizontalDistance != 0) {
+        applyKnockback(&dummy.knockback, &dummy);
+    }
+}
+
 void updateDummy() {
     // Update Dummy
     if (dummy.stunnedFrames > 0) {
@@ -378,6 +409,10 @@ void updateDummy() {
         if (dummy.stunnedFrames == 0) {
             dummy.state = DummyState::Recovery;
             dummy.recoveryFrames = 60;
+
+            // Reset knockback
+            dummy.knockback.horizontalDistance = 0;
+            dummy.knockback.verticalDistance = 0;
         }
     }
     else if (dummy.recoveryFrames > 0) {
@@ -401,6 +436,10 @@ void updateDummy() {
         default:
             dummy.sprite = DUMMY_IDLE;
     }
+
+    // Update dummy's hitbox position
+    dummy.hitbox.x = dummy.x;
+    dummy.hitbox.y = dummy.y;
 }
 
 void preventOutofBounds() {
@@ -473,6 +512,8 @@ void updateGame(uint8_t input) {
         handleProjectiles(input);
 
         handleCurrentMoveAndCollision();
+
+        handleKnockback();
 
         updateDummy();
 
