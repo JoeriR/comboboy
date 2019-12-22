@@ -10,6 +10,7 @@
 #include "projectile.h"
 #include "spriteData.h"
 
+// Move Functions
 void moveFunction5B() {
     if (getMoveState(player.currentMove, player.currentMoveFrameCounter) == MoveState::Active) {
         playerMoveForwards(&player, 1);
@@ -36,6 +37,7 @@ void moveFunction236A() {
     }
 }
 
+// Move Data
 const Move MOVE_5A = {
     startupFrames: 6,
     activeFrames: 3,
@@ -46,7 +48,7 @@ const Move MOVE_5A = {
     activeSprite: PLAYER_5A_ACTIVE,
     recoverySprite: PLAYER_5A_RECOVERY,
     moveFunction: nullptr,
-    knockback: nullptr,
+    knockback: &knockback_weak,
     hitboxData: ConstHitbox {
         xOffset: 8,
         yOffset: 0,
@@ -84,7 +86,7 @@ const Move MOVE_2A = {
     activeSprite: PLAYER_2A_ACTIVE,
     recoverySprite: PLAYER_2A_RECOVERY,
     moveFunction: nullptr,
-    knockback: nullptr,
+    knockback: &knockback_weak,
     hitboxData: ConstHitbox {
         xOffset: 12,
         yOffset: 17,
@@ -103,7 +105,7 @@ const Move MOVE_2B = {
     activeSprite: PLAYER_2B_ACTIVE,
     recoverySprite: PLAYER_2B_RECOVERY,
     moveFunction: moveFunction2B,
-    knockback: nullptr,
+    knockback: &knockback_2B,
     hitboxData: ConstHitbox {
         xOffset: 6,
         yOffset: 11,
@@ -141,7 +143,7 @@ const Move MOVE_J_5A = {
     activeSprite: PLAYER_J_5A_ACTIVE,
     recoverySprite: PLAYER_J_5A_RECOVERY,
     moveFunction: nullptr,
-    knockback: nullptr,
+    knockback: &knockback_J5A,
     hitboxData: ConstHitbox {
         xOffset: 8,
         yOffset: 0,
