@@ -99,7 +99,10 @@ void applyKnockback(Knockback *knockback, Dummy *dummy) {
 
         if (dummy->knockbackTick > knockback->tickLimit) {
             dummy->x += knockback->horizontalDistance;
-            dummy->y += knockback->verticalDistance;
+
+            // Apply vertical knockback when the dummy is in the air or when this Knockback has the CB_KB_PROP_LAUNCH property 
+            if (dummy->y < 64 - 17 || knockback->properties & CB_KB_PROP_LAUNCH)
+                dummy->y -= knockback->verticalDistance;
 
             dummy->knockbackTick = dummy->knockbackTick % knockback->tickLimit;
         }
@@ -411,7 +414,7 @@ void updateDummy() {
             dummy.state = DummyState::Recovery;
             dummy.recoveryFrames = 60;
 
-            // Reset knockback
+            // Reset knockback      TODO: Maybe this should be changed to setKnockback(&knockback_default) ?
             dummy.knockback.horizontalDistance = 0;
             dummy.knockback.verticalDistance = 0;
         }
@@ -437,6 +440,10 @@ void updateDummy() {
         default:
             dummy.sprite = DUMMY_IDLE;
     }
+
+    // Apply gravity on the dummy when is not in hitstun
+    if (dummy.state != DummyState::Hit && dummy.y < 64 - 17)
+        dummy.y += 1;
 
     // Update dummy's hitbox position
     dummy.hitbox.x = dummy.x;

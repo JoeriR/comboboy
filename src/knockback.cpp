@@ -12,6 +12,7 @@ void setKnockback(Knockback *knockback) {
         verticalDistance: knockback->verticalDistance,
         ticksPerFrame: knockback->ticksPerFrame,
         tickLimit: knockback->tickLimit,
+        properties: knockback->properties,
         knockbackFunction: knockback->knockbackFunction
     };
 }
