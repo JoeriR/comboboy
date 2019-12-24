@@ -152,6 +152,25 @@ const Move MOVE_J_5A = {
     }
 };
 
+const Move MOVE_J_5B = {
+    startupFrames: 10,
+    activeFrames: 6,
+    recoveryFrames: 16,
+    hitstunFrames: 28,
+    damage: 10,
+    startupSprite: PLAYER_J_5B_STARTUP,
+    activeSprite: PLAYER_J_5B_ACTIVE,
+    recoverySprite: PLAYER_J_5B_RECOVERY,
+    moveFunction: nullptr,
+    knockback: &knockback_J5A,
+    hitboxData: ConstHitbox {
+        xOffset: 8,
+        yOffset: 10,
+        width: 14,
+        height: 20
+    }
+};
+
 #endif
 
 /*
