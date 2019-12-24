@@ -4,10 +4,13 @@
 #include <avr/pgmspace.h>
 
 #include "engine.h"
+#include "knockback.h"
+#include "knockbackData.h"
 #include "move.h"
 #include "projectile.h"
 #include "spriteData.h"
 
+// Move Functions
 void moveFunction5B() {
     if (getMoveState(player.currentMove, player.currentMoveFrameCounter) == MoveState::Active) {
         playerMoveForwards(&player, 1);
@@ -34,6 +37,7 @@ void moveFunction236A() {
     }
 }
 
+// Move Data
 const Move MOVE_5A = {
     startupFrames: 6,
     activeFrames: 3,
@@ -44,6 +48,7 @@ const Move MOVE_5A = {
     activeSprite: PLAYER_5A_ACTIVE,
     recoverySprite: PLAYER_5A_RECOVERY,
     moveFunction: nullptr,
+    knockback: &knockback_weak,
     hitboxData: ConstHitbox {
         xOffset: 8,
         yOffset: 0,
@@ -62,6 +67,7 @@ const Move MOVE_5B = {
     activeSprite: PLAYER_5B_ACTIVE,
     recoverySprite: PLAYER_5B_RECOVERY,
     moveFunction: moveFunction5B,
+    knockback: &knockback_5B,
     hitboxData: ConstHitbox {
         xOffset: 8,
         yOffset: 0,
@@ -80,6 +86,7 @@ const Move MOVE_2A = {
     activeSprite: PLAYER_2A_ACTIVE,
     recoverySprite: PLAYER_2A_RECOVERY,
     moveFunction: nullptr,
+    knockback: &knockback_weak,
     hitboxData: ConstHitbox {
         xOffset: 12,
         yOffset: 17,
@@ -98,6 +105,7 @@ const Move MOVE_2B = {
     activeSprite: PLAYER_2B_ACTIVE,
     recoverySprite: PLAYER_2B_RECOVERY,
     moveFunction: moveFunction2B,
+    knockback: &knockback_2B,
     hitboxData: ConstHitbox {
         xOffset: 6,
         yOffset: 11,
@@ -116,6 +124,7 @@ const Move MOVE_236A = {
     activeSprite: PLAYER_236A_ACTIVE,
     recoverySprite: PLAYER_236A_RECOVERY,
     moveFunction: moveFunction236A,
+    knockback: &knockback_236A_fireball,    // Knockback is triggered when the fireball hits the dummy
     hitboxData: ConstHitbox {   // 236A launches a fireball that caries a hitbox, the move itself does not
         xOffset: 0,
         yOffset: 0,
@@ -134,6 +143,7 @@ const Move MOVE_J_5A = {
     activeSprite: PLAYER_J_5A_ACTIVE,
     recoverySprite: PLAYER_J_5A_RECOVERY,
     moveFunction: nullptr,
+    knockback: &knockback_J5A,
     hitboxData: ConstHitbox {
         xOffset: 8,
         yOffset: 0,
@@ -157,6 +167,7 @@ const Move MOVE_ = {
     activeSprite: PLAYER__ACTIVE,
     recoverySprite: PLAYER__RECOVERY,
     moveFunction: nullptr,
+    knockback: nullptr,
     hitboxData: ConstHitbox {
         xOffset: ,
         yOffset: ,

@@ -4,6 +4,7 @@
 #include <Arduino.h>
 
 #include "hitbox.h"
+#include "knockback.h"
 
 
 enum class MoveState { Startup, Active, Recovery, Finished };
@@ -18,6 +19,7 @@ typedef struct Move {
     const uint8_t *activeSprite;
     const uint8_t *recoverySprite;
     void(*moveFunction)();
+    Knockback *knockback;
     const ConstHitbox hitboxData;
 } Move;
 

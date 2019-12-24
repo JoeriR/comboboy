@@ -6,6 +6,7 @@
 #include "engine.h"
 #include "hitbox.h"
 #include "input.h"
+#include "knockbackData.h"
 #include "move.h"
 #include "moveData.h"
 #include "player.h"
@@ -59,6 +60,7 @@ Dummy dummy = {
     y: 64 - 17,
     stunnedFrames: 0,
     recoveryFrames: 0,
+    knockbackTick: 0,
     state: DummyState::Idle,
     sprite: DUMMY_IDLE,
     hitbox: Hitbox {
@@ -66,7 +68,8 @@ Dummy dummy = {
         y: 64 - 17,
         width: 16,
         height: 16
-    }
+    },
+    knockback: knockback_default
 };
 
 inline uint8_t getInvertedHorizontalInput(uint8_t input) {
@@ -85,6 +88,25 @@ inline uint8_t getInvertedHorizontalInput(uint8_t input) {
         inputCopy = inputCopy & (~CB_LEFT_BUTTON);
     
     return inputCopy;
+}
+
+void applyKnockback(Knockback *knockback, Dummy *dummy) {
+    if (knockback->knockbackFunction != nullptr) {
+        knockback->knockbackFunction();
+    }
+    else {
+        dummy->knockbackTick += knockback->ticksPerFrame;
+
+        if (dummy->knockbackTick > knockback->tickLimit) {
+            dummy->x += knockback->horizontalDistance;
+
+            // Apply vertical knockback when the dummy is in the air or when this Knockback has the CB_KB_PROP_LAUNCH property 
+            if (dummy->y < 64 - 17 || knockback->properties & CB_KB_PROP_LAUNCH)
+                dummy->y -= knockback->verticalDistance;
+
+            dummy->knockbackTick = dummy->knockbackTick % knockback->tickLimit;
+        }
+    }
 }
 
 // Decide's the direction which the Player will be facing during this frame
@@ -299,6 +321,12 @@ void handleCurrentMoveHit(Move const *movePtr = NULL) {
     // Put the dummy in hitstun
     dummy.stunnedFrames = movePtr->hitstunFrames - hitStunDecay;
 
+    // Set knockback on the dummy
+    if (movePtr->knockback != nullptr)
+        setKnockback(movePtr->knockback);
+    else
+        setKnockback(&knockback_default);
+
     // Set hitstop
     hitStopFrames = 15;
 
@@ -368,6 +396,13 @@ void handleCurrentMoveAndCollision() {
     
 }
 
+void handleKnockback() {
+    // TODO: improve checks
+    if (dummy.state == DummyState::Hit && dummy.knockback.horizontalDistance != 0) {
+        applyKnockback(&dummy.knockback, &dummy);
+    }
+}
+
 void updateDummy() {
     // Update Dummy
     if (dummy.stunnedFrames > 0) {
@@ -378,6 +413,10 @@ void updateDummy() {
         if (dummy.stunnedFrames == 0) {
             dummy.state = DummyState::Recovery;
             dummy.recoveryFrames = 60;
+
+            // Reset knockback      TODO: Maybe this should be changed to setKnockback(&knockback_default) ?
+            dummy.knockback.horizontalDistance = 0;
+            dummy.knockback.verticalDistance = 0;
         }
     }
     else if (dummy.recoveryFrames > 0) {
@@ -401,6 +440,14 @@ void updateDummy() {
         default:
             dummy.sprite = DUMMY_IDLE;
     }
+
+    // Apply gravity on the dummy when is not in hitstun
+    if (dummy.state != DummyState::Hit && dummy.y < 64 - 17)
+        dummy.y += 1;
+
+    // Update dummy's hitbox position
+    dummy.hitbox.x = dummy.x;
+    dummy.hitbox.y = dummy.y;
 }
 
 void preventOutofBounds() {
@@ -473,6 +520,8 @@ void updateGame(uint8_t input) {
         handleProjectiles(input);
 
         handleCurrentMoveAndCollision();
+
+        handleKnockback();
 
         updateDummy();
 
