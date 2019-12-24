@@ -15,16 +15,16 @@ Knockback knockback_default = {
 };
 
 Knockback knockback_weak = {
-    horizontalDistance: 2,
+    horizontalDistance: 1,
     verticalDistance: 1,
     ticksPerFrame: 1,
-    tickLimit: 10,
+    tickLimit: 5,
     properties: 0,
     knockbackFunction: nullptr
 };
 
 Knockback knockback_J5A = {
-    horizontalDistance: 2,
+    horizontalDistance: 1,
     verticalDistance: 1,
     ticksPerFrame: 1,
     tickLimit: 4,
@@ -42,19 +42,19 @@ Knockback knockback_2B = {
 };
 
 Knockback knockback_5B = {
-    horizontalDistance: 2,
-    verticalDistance: 2,
+    horizontalDistance: 1,
+    verticalDistance: 1,
     ticksPerFrame: 1,
-    tickLimit: 10,
+    tickLimit: 5,
     properties: 0,
     knockbackFunction: nullptr
 };
 
 Knockback knockback_236A_fireball = {
-    horizontalDistance: 3,
+    horizontalDistance: 1,
     verticalDistance: 1,
-    ticksPerFrame: 5,
-    tickLimit: 11,
+    ticksPerFrame: 1,
+    tickLimit: 3,
     properties: 0,
     knockbackFunction: nullptr
 };
