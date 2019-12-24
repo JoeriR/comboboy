@@ -124,7 +124,7 @@ const Move MOVE_236A = {
     activeSprite: PLAYER_236A_ACTIVE,
     recoverySprite: PLAYER_236A_RECOVERY,
     moveFunction: moveFunction236A,
-    knockback: nullptr,
+    knockback: &knockback_236A_fireball,    // Knockback is triggered when the fireball hits the dummy
     hitboxData: ConstHitbox {   // 236A launches a fireball that caries a hitbox, the move itself does not
         xOffset: 0,
         yOffset: 0,
