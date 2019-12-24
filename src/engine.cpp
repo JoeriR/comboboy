@@ -236,7 +236,9 @@ void handleInputBuffer(uint8_t input) {
         
         // Grounded moves
         if (player.jumpFrame == 0) {
-            if (detectQuarterCircleForward() && input & CB_A_BUTTON)
+            if (detectQuarterCircleBack() && input & CB_A_BUTTON)
+                playerExecuteMove(&player, &MOVE_J_5B);     // Placeholder move
+            else if (detectQuarterCircleForward() && input & CB_A_BUTTON)
                 playerExecuteMove(&player, &MOVE_236A);
             else if (input & CB_DOWN_BUTTON && input & CB_A_BUTTON)
                 playerExecuteMove(&player, &MOVE_2A);
