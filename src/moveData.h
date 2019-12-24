@@ -37,6 +37,28 @@ void moveFunction236A() {
     }
 }
 
+void moveFunctionHandstandKick() {
+    if (getMoveState(player.currentMove, player.currentMoveFrameCounter) == MoveState::Active) {
+        playerMoveForwards(&player, 1);
+        player.y -= 2;
+        player.jumpFrame = JUMP_ASCENDING_FRAMES + 1;   // Put and keep the player in an airborne state
+    }
+    if (getMoveState(player.currentMove, player.currentMoveFrameCounter) == MoveState::Recovery && player.currentMoveFrameCounter % 4) {
+        playerMoveForwards(&player, 1);
+        player.y -= 1;
+
+        // Handle air movement after this move has been finished
+        player.jumpFrame = JUMP_ASCENDING_FRAMES + 5;
+
+        // Set jump direction
+        if (player.direction)
+            player.jumpDirection = 1;
+        else 
+            player.jumpDirection = -1;
+    }
+        
+}
+
 // Move Data
 const Move MOVE_5A = {
     startupFrames: 6,
@@ -130,6 +152,26 @@ const Move MOVE_236A = {
         yOffset: 0,
         width: 0,
         height: 0
+    }
+};
+
+
+const Move MOVE_HANDSTAND_KICK = {
+    startupFrames: 10,
+    activeFrames: 8,
+    recoveryFrames: 24,
+    hitstunFrames: 45,
+    damage: 12,
+    startupSprite: PLAYER_HANDSTAND_KICK_STARTUP,
+    activeSprite: PLAYER_HANDSTAND_KICK_ACTIVE,
+    recoverySprite: PLAYER_HANDSTAND_KICK_RECOVERY,
+    moveFunction: moveFunctionHandstandKick,
+    knockback: &knockback_2B,
+    hitboxData: ConstHitbox {
+        xOffset: 0,
+        yOffset: 0,
+        width: 20,
+        height: 28
     }
 };
 
