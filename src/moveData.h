@@ -170,7 +170,7 @@ const Move MOVE_HANDSTAND_KICK = {
     hitboxData: ConstHitbox {
         xOffset: 0,
         yOffset: 0,
-        width: 20,
+        width: 22,
         height: 28
     }
 };
