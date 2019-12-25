@@ -38,23 +38,23 @@ void moveFunction236A() {
 }
 
 void moveFunctionHandstandKick() {
+    // Set jump direction
+    if (player.direction)
+        player.jumpDirection = 1;
+    else 
+        player.jumpDirection = -1;
+
     if (getMoveState(player.currentMove, player.currentMoveFrameCounter) == MoveState::Active) {
         playerMoveForwards(&player, 1);
         player.y -= 2;
         player.jumpFrame = JUMP_ASCENDING_FRAMES + 1;   // Put and keep the player in an airborne state
     }
-    if (getMoveState(player.currentMove, player.currentMoveFrameCounter) == MoveState::Recovery && player.currentMoveFrameCounter % 4) {
+    else if (getMoveState(player.currentMove, player.currentMoveFrameCounter) == MoveState::Recovery && player.currentMoveFrameCounter % 4) {
         playerMoveForwards(&player, 1);
         player.y -= 1;
 
         // Handle air movement after this move has been finished
         player.jumpFrame = JUMP_ASCENDING_FRAMES + 5;
-
-        // Set jump direction
-        if (player.direction)
-            player.jumpDirection = 1;
-        else 
-            player.jumpDirection = -1;
     }
         
 }

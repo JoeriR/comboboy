@@ -235,7 +235,7 @@ void handleInputBuffer(uint8_t input) {
     if (player.state != PlayerState::ExecutingMove || player.currentMoveHit) {
         
         bool quarterCircleBackDetected = detectQuarterCircleBack();
-        bool quarterCircleForwardDetected = detectQuarterCircleForward();
+        bool quarterCircleForwardDetected = detectQuarterCircleForward();   
 
         // Grounded moves
         if (player.jumpFrame == 0) {
