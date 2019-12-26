@@ -155,7 +155,6 @@ const Move MOVE_236A = {
     }
 };
 
-
 const Move MOVE_HANDSTAND_KICK = {
     startupFrames: 10,
     activeFrames: 8,
