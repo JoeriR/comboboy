@@ -5,6 +5,14 @@
 
 
 bool collision(Hitbox *hitbox1, Hitbox *hitbox2) {
+
+    bool doesWidthOverlap = (hitbox1->x <= (hitbox2->x + hitbox2->width)) && ((hitbox1->x + hitbox1->width) >= hitbox2->x);
+    bool doesHeightOverlap = (hitbox1->y <= (hitbox2->y + hitbox2->height)) && ((hitbox1->y + hitbox1->height) >= hitbox2->y);
+
+    return doesWidthOverlap && doesHeightOverlap;
+}
+
+bool collisionWithCornersOnly(Hitbox *hitbox1, Hitbox *hitbox2) {
     bool result = isPointInBox(hitbox1->x, hitbox1->y, hitbox2) ||
                   isPointInBox(hitbox1->x + hitbox1->width, hitbox1->y, hitbox2) ||
                   isPointInBox(hitbox1->x, hitbox1->y + hitbox1->height, hitbox2) ||
