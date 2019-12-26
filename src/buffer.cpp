@@ -85,6 +85,51 @@ bool detectQuarterCircleForward() {
         return false;
 }
 
+bool detectQuarterCircleBack() {
+    uint8_t *pointer = bufferStart;
+
+    uint8_t counter = 0;
+
+    bool downFound = false;
+    bool downBackFound = false;
+    bool backFound = false;
+
+    // If a quartercircle back was detected in x amount of previous frames, then return true
+    static uint8_t quarterCircleBackDetectedFrames = 0;
+
+    if (quarterCircleBackDetectedFrames > 0) {
+        --quarterCircleBackDetectedFrames;
+        return true;
+    }
+
+	// Go one spot further than bufferEnd?
+    while (pointer != bufferEnd) {
+		if (*pointer == CB_DOWN_BUTTON) {
+			downFound = true;
+			counter = 1;
+		}
+        else if (downFound && *pointer == CB_DOWN_BUTTON + CB_LEFT_BUTTON)
+            downBackFound = true;
+        else if (downBackFound && *pointer == CB_LEFT_BUTTON)
+            backFound = true;
+
+		incrementBufferPointer(&pointer);
+
+		if (counter > 0)
+			++counter;
+
+        if (counter > 15)
+            downFound = false;
+    }
+
+    if (downFound && downBackFound && backFound) {
+        quarterCircleBackDetectedFrames = 20;
+        return true;
+    }
+    else
+        return false;
+}
+
 void printBufferToSerial() {
     uint8_t *pointer = bufferStart;
 

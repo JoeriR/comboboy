@@ -11,6 +11,9 @@
 #include "src/player.h"
 #include "src/spriteData.h"
 
+#define PRINT_MOTION_X 100
+#define PRINT_MOTION_Y 18
+
 Arduboy2 arduboy;
 
 // make an ArdBitmap instance that will use the given the screen buffer and dimensions
@@ -104,9 +107,13 @@ void loop() {
 
     updateGame(input);
 
-    // DEBUG print, can be removed later
-    if (detectQuarterCircleForward()) {
-        arduboy.setCursor(100, 18);
+    // Print the name of a motion if it's been succesfully executed
+    if (detectQuarterCircleBack()) {
+        arduboy.setCursor(PRINT_MOTION_X, PRINT_MOTION_Y);
+        arduboy.print(F("QCB"));
+    }
+    else if (detectQuarterCircleForward()) {
+        arduboy.setCursor(PRINT_MOTION_X, PRINT_MOTION_Y);
         arduboy.print(F("QCF"));
     }
 
