@@ -21,6 +21,8 @@ Arduboy2 arduboy;
 #include <ArdBitmap.h>
 ArdBitmap<WIDTH, HEIGHT> ardbitmap;
 
+// Enums
+enum class ScreenState { DebugInfoScreen, TitleScreen, Gameplay };
 
 // Constants
 const uint8_t FRAME_RATE = 60;
@@ -29,11 +31,12 @@ const uint8_t FRAME_RATE = 60;
 uint8_t globalColor = 0;
 uint8_t input = 0x00;
 
-bool doDisplayTitlescreen = true;
+ScreenState screenState = ScreenState::DebugInfoScreen;
 
-void handleTitlescreen() {
-    if (arduboy.pressed(A_BUTTON) || arduboy.pressed(B_BUTTON)) {
-        doDisplayTitlescreen = false;
+
+void handleDebugInfoScreen() {
+    if (input & CB_A_BUTTON || input & CB_B_BUTTON) {
+        screenState = ScreenState::TitleScreen;
     }
     else {
         arduboy.clear();
@@ -50,6 +53,31 @@ void handleTitlescreen() {
 
         arduboy.setCursor(10, 42);
         arduboy.print(F("Press A/B to play"));
+
+        arduboy.display();
+    }
+}
+
+void handleTitleScreen() {
+    if (input & CB_A_BUTTON || input & CB_B_BUTTON) {
+        screenState = ScreenState::Gameplay;
+    }
+    else {
+        arduboy.clear();
+
+        // Draw Titlescreen text
+        arduboy.setCursor(33, 8);
+        arduboy.print(F("Combo Boy"));
+
+        arduboy.setCursor(92, 8);
+        arduboy.print(F("v0.4"));
+
+        arduboy.setCursor(37, 32);
+        arduboy.print(F("Press A/B"));
+
+        // Draw Player and Dummy sprite
+        ardbitmap.drawBitmap(10, 28, PLAYER_IDLE, 16, 24, WHITE, ALIGN_NONE, MIRROR_NONE);
+        ardbitmap.drawBitmap(100, 36, dummy.sprite, 16, 16, WHITE, ALIGN_NONE, MIRROR_HORIZONTAL);
 
         arduboy.display();
     }
@@ -93,17 +121,20 @@ void loop() {
     if (!arduboy.nextFrame())
         return;
 
-    if (doDisplayTitlescreen) {
-        handleTitlescreen();
+    arduboy.pollButtons();
+    updateInput();
+
+    if (screenState == ScreenState::DebugInfoScreen) {
+        handleDebugInfoScreen();
+        return;
+    }
+    else if (screenState == ScreenState::TitleScreen) {
+        handleTitleScreen();
         return;
     }
 
     // Draw the screen
     arduboy.clear();
-
-    arduboy.pollButtons();
-
-    updateInput();
 
     updateGame(input);
 
