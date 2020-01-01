@@ -462,22 +462,22 @@ void updateDummy() {
 
 void preventOutofBounds() {
     // Push player inwards towards the screen
-    if (player.x > 128 + 64)
-        player.x = 0;
-    if (player.x > 128 - 16)
-        player.x = 128 - 16;
+    if (player.x > 128 + 64 || player.x == 0)
+        player.x = 1;
+    if (player.x > 128 - 18)
+        player.x = 128 - 18;
     if (player.y > 64 + 64)
-        player.y = 0;
+        player.y = 1;
     if (player.y > 64 - 25)
         player.y = 64 - 25;
 
     // Push dummy inwards towards the screen
-    if (dummy.x > 128 + 64)
-        dummy.x = 0;
-    if (dummy.x > 128 - 16)
-        dummy.x = 128 - 16;
+    if (dummy.x > 128 + 64 || dummy.x == 0)
+        dummy.x = 1;
+    if (dummy.x > 128 - 17)
+        dummy.x = 128 - 17;
     if (dummy.y > 64 + 64)
-        dummy.y = 0;
+        dummy.y = 1;
     if (dummy.y > 64 - 17)
         dummy.y = 64 - 17;
 }
