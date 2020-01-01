@@ -391,7 +391,6 @@ void handleCurrentMoveAndCollision() {
             dummy.hitbox.x = dummy.x;
             dummy.hitbox.y = dummy.y;
 
-            // TODO: Expand collision to also use midway points between corners!
             // Collision detection between the Hitbox and the Dummy
             if (dummy.state != DummyState::Recovery && collision(&playerMoveHitbox, &dummy.hitbox)) {
                 handleCurrentMoveHit();
