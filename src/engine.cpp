@@ -48,10 +48,10 @@ Player player = {
     crouchState: PlayerCrouchState::Standing,
     sprite: PLAYER_IDLE,
     hitbox: Hitbox {
-        x: 0,
-        y: 0,
-        width: 16,
-        height: 16
+        x: PLAYER_HITBOX_X_OFFSET,
+        y: PLAYER_HITBOX_Y_OFFSET,
+        width: 10,
+        height: 19
     }
 };
 
@@ -110,10 +110,11 @@ void applyKnockback(Knockback *knockback, Dummy *dummy) {
 }
 
 // Decide's the direction which the Player will be facing during this frame
+// This is done by comparing the center of the Player's Hitbox with the center of the Dummy's Hitbox
 inline void updatePlayerDirections() {
-    if (player.direction && player.x > dummy.x + 15)
+    if (player.direction && player.hitbox.x + player.hitbox.width / 2 > dummy.hitbox.x + dummy.hitbox.width / 2)
         player.direction = false;
-    else if (player.x + 16 < dummy.x)
+    else if (player.hitbox.x + player.hitbox.width / 2 < dummy.hitbox.x + dummy.hitbox.width / 2 && dummy.hitbox.x < 200)   // This also takes dummy.hitbox.x underflow in consideration
         player.direction = true;
 }
 
@@ -187,8 +188,10 @@ void handlePlayerJumping(uint8_t input) {
         jumpState = updatePlayerJumpFrame(&player);
     }
 
-    if (jumpState != PlayerJumpState::Startup && player.jumpFrame % 4 > 0)
+    if (jumpState != PlayerJumpState::Startup && player.jumpFrame % 4 > 0) {
         player.x += player.jumpDirection;
+        playerSyncPositionToHitbox(&player);
+    }
 
     switch (jumpState) {
         case PlayerJumpState::Startup : 
@@ -309,14 +312,16 @@ void handleProjectiles(uint8_t input) {
 }
 
 bool handlePlayerDummyCollision(Player *player, Dummy *dummy) {
-    bool didPlayerAndDummyCollidePlayerRightSide = isPointInBox(player->x + 16, player->y + 8, &dummy->hitbox) || isPointInBox(player->x + 16, player->y + 16, &dummy->hitbox) || isPointInBox(player->x + 16, player->y + 24, &dummy->hitbox);
-    bool didPlayerAndDummyCollidePlayerLeftSide = isPointInBox(player->x, player->y + 8, &dummy->hitbox) || isPointInBox(player->x, player->y + 16, &dummy->hitbox) || isPointInBox(player->x, player->y + 24, &dummy->hitbox);
+    bool didPlayerAndDummyCollidePlayerRightSide = isPointInBox(player->hitbox.x + player->hitbox.width, player->hitbox.y, &dummy->hitbox) || isPointInBox(player->hitbox.x + player->hitbox.width, player->hitbox.y + player->hitbox.height / 2, &dummy->hitbox) || isPointInBox(player->hitbox.x + player->hitbox.width, player->hitbox.y + player->hitbox.height, &dummy->hitbox);
+    bool didPlayerAndDummyCollidePlayerLeftSide = isPointInBox(player->hitbox.x, player->hitbox.y, &dummy->hitbox) || isPointInBox(player->hitbox.x, player->hitbox.y + player->hitbox.height / 2, &dummy->hitbox) || isPointInBox(player->hitbox.x, player->hitbox.y + player->hitbox.height, &dummy->hitbox);
 
     // Push the player left outside of the dummy if they collide
-    if (didPlayerAndDummyCollidePlayerRightSide)
-        player->x = dummy->x - 16;
-    else if (didPlayerAndDummyCollidePlayerLeftSide)
-        player->x = dummy->x + 16;
+    if (didPlayerAndDummyCollidePlayerRightSide && player->direction)
+        player->x = dummy->x - 17 + PLAYER_HITBOX_X_OFFSET;
+    else if (didPlayerAndDummyCollidePlayerLeftSide && !player->direction)
+        player->x = dummy->x + 17 - PLAYER_HITBOX_X_OFFSET;
+
+    playerSyncPositionToHitbox(player);
 
     return didPlayerAndDummyCollidePlayerRightSide || didPlayerAndDummyCollidePlayerLeftSide;
 }
@@ -391,7 +396,6 @@ void handleCurrentMoveAndCollision() {
             dummy.hitbox.x = dummy.x;
             dummy.hitbox.y = dummy.y;
 
-            // TODO: Expand collision to also use midway points between corners!
             // Collision detection between the Hitbox and the Dummy
             if (dummy.state != DummyState::Recovery && collision(&playerMoveHitbox, &dummy.hitbox)) {
                 handleCurrentMoveHit();
@@ -463,22 +467,22 @@ void updateDummy() {
 
 void preventOutofBounds() {
     // Push player inwards towards the screen
-    if (player.x > 128 + 64)
-        player.x = 0;
-    if (player.x > 128 - 16)
-        player.x = 128 - 16;
+    if (player.x > 128 + 64 || player.x == 0)
+        player.x = 1;
+    if (player.x > 128 - 18)
+        player.x = 128 - 18;
     if (player.y > 64 + 64)
-        player.y = 0;
+        player.y = 1;
     if (player.y > 64 - 25)
         player.y = 64 - 25;
 
     // Push dummy inwards towards the screen
-    if (dummy.x > 128 + 64)
-        dummy.x = 0;
-    if (dummy.x > 128 - 16)
-        dummy.x = 128 - 16;
+    if (dummy.x > 128 + 64 || dummy.x == 0)
+        dummy.x = 1;
+    if (dummy.x > 128 - 17)
+        dummy.x = 128 - 17;
     if (dummy.y > 64 + 64)
-        dummy.y = 0;
+        dummy.y = 1;
     if (dummy.y > 64 - 17)
         dummy.y = 64 - 17;
 }
@@ -541,6 +545,8 @@ void updateGame(uint8_t input) {
         preventOutofBounds();
         
         updateComboDisplayTimer();
+
+        playerSyncPositionToHitbox(&player);
     }
     
 }

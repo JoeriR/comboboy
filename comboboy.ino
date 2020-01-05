@@ -186,15 +186,22 @@ void loop() {
             else
                 xPositionHitbox = player.x + 16 - player.currentMove->hitboxData.xOffset - player.currentMove->hitboxData.width;
             
-        Hitbox tempHitbox = {
+        Hitbox currentMoveHitbox = {
             x : xPositionHitbox,
             y : player.y + player.currentMove->hitboxData.yOffset,
             width : player.currentMove->hitboxData.width,
             height : player.currentMove->hitboxData.height
-        }; 
+        };
 
-        //arduboy.drawRect(tempHitbox.x, tempHitbox.y, tempHitbox.width, tempHitbox.height);
+        // DEBUG: Draw Hitbox of the current Move
+        //arduboy.drawRect(currentMoveHitbox.x, currentMoveHitbox.y, currentMoveHitbox.width, currentMoveHitbox.height);
     }
+
+    // DEBUG: Draw Hitbox of the Player
+    //arduboy.drawRect(player.hitbox.x, player.hitbox.y, player.hitbox.width, player.hitbox.height);
+
+    // DEBUG: Draw Hitbox of the Dummy
+    //arduboy.drawRect(dummy.hitbox.x, dummy.hitbox.y, dummy.hitbox.width, dummy.hitbox.height);
 
     arduboy.display();
 }
