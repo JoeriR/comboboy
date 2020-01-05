@@ -25,6 +25,8 @@ void playerMoveForwards(Player *player, uint8_t pixelsForward) {
         player->x += pixelsForward;
     else
         player->x -= pixelsForward;
+
+    playerSyncPositionToHitbox(player);
 }
 
 void playerMoveBackwards(Player *player, uint8_t pixelsBackward) {
@@ -32,6 +34,13 @@ void playerMoveBackwards(Player *player, uint8_t pixelsBackward) {
         player->x -= pixelsBackward;
     else
         player->x += pixelsBackward;
+
+    playerSyncPositionToHitbox(player);
+}
+
+void playerSyncPositionToHitbox(Player *player) {
+    player->hitbox.x = player->x + PLAYER_HITBOX_X_OFFSET; 
+    player->hitbox.y = player->y + PLAYER_HITBOX_Y_OFFSET;
 }
 
 // crouchFrame decides the PlayerCrouchState that we're in

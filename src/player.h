@@ -6,6 +6,9 @@
 #include "hitbox.h"
 #include "move.h"
 
+#define PLAYER_HITBOX_X_OFFSET 3
+#define PLAYER_HITBOX_Y_OFFSET 5
+
 #define CROUCH_FRAME_LIMIT 4
 
 #define WALK_1_FRAMES 4
@@ -45,6 +48,8 @@ void playerExecuteMove(Player *player, Move const *move);
 void playerMoveForwards(Player *player, uint8_t pixelsForward);
 
 void playerMoveBackwards(Player *player, uint8_t pixelsBackward);
+
+void playerSyncPositionToHitbox(Player *player);
 
 PlayerCrouchState getPlayerCrouchState(Player *player, uint8_t input);
 PlayerWalkState updatePlayerWalkFrame(Player *player);
