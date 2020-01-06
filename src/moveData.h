@@ -74,7 +74,7 @@ const Move MOVE_5A = {
     hitboxData: ConstHitbox {
         xOffset: 8,
         yOffset: 0,
-        width: 8,
+        width: 12,
         height: 16
     }
 };
@@ -112,7 +112,7 @@ const Move MOVE_2A = {
     hitboxData: ConstHitbox {
         xOffset: 12,
         yOffset: 17,
-        width: 4,
+        width: 8,
         height: 7
     }
 };
