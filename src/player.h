@@ -31,6 +31,7 @@ typedef struct Player {
     uint8_t direction;
     Move const *currentMove;
     uint8_t currentMoveFrameCounter;
+    bool currentMoveHit;
     PlayerState state;
     uint8_t crouchFrame;
     uint8_t walkFrame;
@@ -39,7 +40,6 @@ typedef struct Player {
     PlayerCrouchState crouchState;
     uint8_t const *sprite;
     Hitbox hitbox;
-    bool currentMoveHit;
 } Player;
 
 void playerSetIdle(Player *player);

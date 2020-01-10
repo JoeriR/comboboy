@@ -40,6 +40,7 @@ Player player = {
     direction: true,
     currentMove: nullptr,
     currentMoveFrameCounter: 0,
+    currentMoveHit: false,
     state: PlayerState::Idle,
     crouchFrame: 0,
     walkFrame: 0,
