@@ -30,6 +30,8 @@ uint8_t hitStunDecay = 0;
 
 uint8_t hitStopFrames = 0;
 
+uint8_t inputPrevFrame = 0x00;
+
 bool didPlayerHitMoveThisFrame = false;
 
 Player player = {
@@ -46,6 +48,7 @@ Player player = {
     walkFrame: 0,
     jumpFrame: 0,
     jumpDirection: 0,
+    doubleJumpUsed: false,
     crouchState: PlayerCrouchState::Standing,
     sprite: PLAYER_IDLE,
     hitbox: Hitbox {
@@ -171,8 +174,10 @@ void handlePlayerCrouching(uint8_t input) {
 }
 
 void handlePlayerLanding() {
-    if (player.jumpFrame > 10 && player.y >= 64 - 25)
+    if (player.jumpFrame > 10 && player.y >= 64 - 25) {
         player.jumpFrame = 0;
+        player.doubleJumpUsed = false;
+    }
 }
 
 void handlePlayerJumping(uint8_t input) {
@@ -186,6 +191,11 @@ void handlePlayerJumping(uint8_t input) {
             return;
     }
     else {
+        if (player.doubleJumpUsed == false && (input & CB_UP_BUTTON) && !(inputPrevFrame & CB_UP_BUTTON)) {
+            player.jumpFrame = 1;
+            player.doubleJumpUsed = true;
+        }
+
         jumpState = updatePlayerJumpFrame(&player);
     }
 
@@ -520,6 +530,14 @@ void updateGame(uint8_t input) {
 
     if (hitStopFrames > 0) {
         --hitStopFrames;
+
+        // Check if the player repressed up during hitstop
+        // And prevent the jump startup frame from being displayed
+        if (player.doubleJumpUsed == false && (input & CB_UP_BUTTON) && !(inputPrevFrame & CB_UP_BUTTON)) {
+            uint8_t const *spriteCopyPtr = player.sprite;
+            handlePlayerJumping(input);
+            player.sprite = spriteCopyPtr;
+        }
     }
     else {
         player.xOffset = 0;
@@ -550,6 +568,7 @@ void updateGame(uint8_t input) {
         playerSyncPositionToHitbox(&player);
     }
     
+    inputPrevFrame = input;
 }
 
 #endif
