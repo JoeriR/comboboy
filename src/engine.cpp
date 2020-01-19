@@ -49,6 +49,7 @@ Player player = {
     jumpFrame: 0,
     jumpDirection: 0,
     doubleJumpUsed: false,
+    allowDoubleJump: true,
     crouchState: PlayerCrouchState::Standing,
     sprite: PLAYER_IDLE,
     hitbox: Hitbox {
@@ -191,7 +192,7 @@ void handlePlayerJumping(uint8_t input) {
             return;
     }
     else {
-        if (player.doubleJumpUsed == false && (input & CB_UP_BUTTON) && !(inputPrevFrame & CB_UP_BUTTON)) {
+        if (player.doubleJumpUsed == false && player.allowDoubleJump == true && (input & CB_UP_BUTTON) && !(inputPrevFrame & CB_UP_BUTTON)) {
             player.jumpFrame = 1;
             player.doubleJumpUsed = true;
         }
@@ -344,6 +345,8 @@ void handleCurrentMoveHit(Move const *movePtr = NULL) {
         
     player.currentMoveHit = true;
 
+    player.allowDoubleJump = true;
+
     // Put the dummy in hitstun
     dummy.stunnedFrames = movePtr->hitstunFrames - hitStunDecay;
 
@@ -413,6 +416,9 @@ void handleCurrentMoveAndCollision() {
                 player.sprite = player.currentMove->activeSprite;
             }
         }
+    }
+    else {
+        player.allowDoubleJump = true;
     }
 
     if (dummy.state != DummyState::Recovery && collision(&fireballPtr->hitbox, &dummy.hitbox)) {
