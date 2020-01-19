@@ -195,11 +195,6 @@ void handlePlayerPosition(uint8_t input) {
     if (player.jumpFrame > 0)
         return;
 
-    if (input & CB_B_BUTTON) {
-            Serial.print(input, BIN);
-            Serial.print("\n\n");
-        }
-
     // Only allow the player to move if they're not holding down (are crouching)
     if (!(input & CB_DOWN_BUTTON) && player.state != PlayerState::ExecutingMove && player.crouchState != PlayerCrouchState::Crouching) {
         if (input & CB_RIGHT_BUTTON) {
