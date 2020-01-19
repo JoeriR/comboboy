@@ -178,6 +178,9 @@ void handlePlayerLanding() {
     if (player.jumpFrame > 10 && player.y >= 64 - 25) {
         player.jumpFrame = 0;
         player.doubleJumpUsed = false;
+
+        // Cancel current move
+        playerSetIdle(&player);
     }
 }
 
