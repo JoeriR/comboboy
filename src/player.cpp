@@ -17,6 +17,7 @@ void playerExecuteMove(Player *player, Move const *move) {
     player->currentMove = move;
     player->currentMoveFrameCounter = 0;
     player->currentMoveHit = false; // CARE:
+    player->allowDoubleJump = true;
     player->state = PlayerState::ExecutingMove;
 }
 

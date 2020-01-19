@@ -37,6 +37,8 @@ typedef struct Player {
     uint8_t walkFrame;
     uint8_t jumpFrame;
     int8_t jumpDirection;   // 0 for neutral jump, 1 or -1 for directional jumps
+    bool doubleJumpUsed;
+    bool allowDoubleJump;
     PlayerCrouchState crouchState;
     uint8_t const *sprite;
     Hitbox hitbox;

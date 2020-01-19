@@ -38,19 +38,23 @@ void moveFunction236A() {
 }
 
 void moveFunctionHandstandKick() {
-    // Set jump direction
-    if (player.direction)
-        player.jumpDirection = 1;
-    else 
-        player.jumpDirection = -1;
+    // Set jump direction on frame 2 and disable double jumping
+    if (player.currentMoveFrameCounter == 1) {    // Might need to be frame 2
+        player.allowDoubleJump = false;
+        
+        if (player.direction)
+            player.jumpDirection = 1;
+        else 
+            player.jumpDirection = -1;
+    }
 
     if (getMoveState(player.currentMove, player.currentMoveFrameCounter) == MoveState::Active) {
-        playerMoveForwards(&player, 1);
+        player.x += player.jumpDirection;
         player.y -= 2;
         player.jumpFrame = JUMP_ASCENDING_FRAMES + 1;   // Put and keep the player in an airborne state
     }
     else if (getMoveState(player.currentMove, player.currentMoveFrameCounter) == MoveState::Recovery && player.currentMoveFrameCounter % 4) {
-        playerMoveForwards(&player, 1);
+        player.x += player.jumpDirection;
         player.y -= 1;
 
         // Handle air movement after this move has been finished
