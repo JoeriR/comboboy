@@ -77,6 +77,71 @@ Dummy dummy = {
     knockback: knockback_default
 };
 
+void resetGame() {
+    // Initialize vars
+    comboCounter = 0;
+    comboCounterDisplay = 0;
+    comboDisplayTimerLimit = 120;
+    comboDisplayTimer = comboDisplayTimerLimit;
+
+    comboDamage = 0;
+    comboDamageDisplay = 0;
+    comboDamageScale = 100; // in percent
+
+    currentHitDamage = 0;
+
+    hitStunDecay = 0;
+
+    hitStopFrames = 0;
+
+    inputPrevFrame = 0x00;
+
+    didPlayerHitMoveThisFrame = false;
+
+    player = {
+        x: 32,
+        y: 64 - 25,
+        xOffset: 0,
+        yOffset: 0,
+        direction: true,
+        currentMove: nullptr,
+        currentMoveFrameCounter: 0,
+        currentMoveHit: false,
+        state: PlayerState::Idle,
+        crouchFrame: 0,
+        walkFrame: 0,
+        jumpFrame: 0,
+        jumpDirection: 0,
+        doubleJumpUsed: false,
+        allowDoubleJump: true,
+        crouchState: PlayerCrouchState::Standing,
+        sprite: PLAYER_IDLE,
+        hitbox: Hitbox {
+            x: PLAYER_HITBOX_X_OFFSET,
+            y: PLAYER_HITBOX_Y_OFFSET,
+            width: 10,
+            height: 19
+        }
+    };
+
+    dummy = {
+        x: 64,
+        y: 64 - 17,
+        stunnedFrames: 0,
+        recoveryFrames: 0,
+        knockbackTick: 0,
+        state: DummyState::Idle,
+        sprite: DUMMY_IDLE,
+        hitbox: Hitbox {
+            x: 96,
+            y: 64 - 17,
+            width: 16,
+            height: 16
+        },
+        knockback: knockback_default
+    };
+}
+
 inline uint8_t getInvertedHorizontalInput(uint8_t input) {
     uint8_t inputCopy = input;
 

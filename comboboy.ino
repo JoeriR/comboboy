@@ -136,6 +136,14 @@ void loop() {
     // Draw the screen
     arduboy.clear();
 
+    // Handle reset bind
+    if (arduboy.pressed(UP_BUTTON) && arduboy.pressed(RIGHT_BUTTON) && arduboy.pressed(LEFT_BUTTON) && arduboy.pressed(DOWN_BUTTON) && arduboy.pressed(A_BUTTON) && arduboy.pressed(B_BUTTON)) {
+        resetGame();
+        screenState = ScreenState::TitleScreen;
+
+        return;
+    }
+
     updateGame(input);
 
     // Print the name of a motion if it's been succesfully executed

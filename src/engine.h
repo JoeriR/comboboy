@@ -10,8 +10,8 @@
 
 
 // Functions
-void initGame();
 void updateGame(uint8_t input);
+void resetGame();
 
 // Variables
 extern uint16_t comboCounter;
