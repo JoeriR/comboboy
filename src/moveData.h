@@ -10,6 +10,18 @@
 #include "projectile.h"
 #include "spriteData.h"
 
+// Helper Functions
+void lockForwardsAirMovement(bool doAllowDoubleJump) {
+    if (player.currentMoveFrameCounter == 1) {
+        player.allowDoubleJump = doAllowDoubleJump;
+        
+        if (player.direction)
+            player.jumpDirection = 1;
+        else 
+            player.jumpDirection = -1;
+    }
+}
+
 // Move Functions
 void moveFunction5B() {
     if (getMoveState(player.currentMove, player.currentMoveFrameCounter) == MoveState::Active) {
@@ -39,7 +51,7 @@ void moveFunction236A() {
 
 void moveFunctionHandstandKick() {
     // Set jump direction on frame 2 and disable double jumping
-    if (player.currentMoveFrameCounter == 1) {    // Might need to be frame 2
+    if (player.currentMoveFrameCounter == 1) {
         player.allowDoubleJump = false;
         
         if (player.direction)
@@ -61,6 +73,22 @@ void moveFunctionHandstandKick() {
         player.jumpFrame = JUMP_ASCENDING_FRAMES + 5;
     }
         
+}
+
+void moveFunctionJ214A() {
+    if (player.currentMoveFrameCounter == 1)
+        lockForwardsAirMovement(false);
+
+    // Put the Player in float state during this move's startup
+    if (getMoveState(player.currentMove, player.currentMoveFrameCounter) == MoveState::Startup) 
+        player.jumpFrame = JUMP_ASCENDING_FRAMES + JUMP_FLOATING_FRAMES - 3;
+    
+    // Put the Player in falling state during this move's active frames
+    if (getMoveState(player.currentMove, player.currentMoveFrameCounter) == MoveState::Active) {
+        player.jumpFrame = JUMP_ASCENDING_FRAMES + JUMP_FLOATING_FRAMES + 5;
+        player.x += player.jumpDirection * 2;
+        ++player.y;
+    }
 }
 
 // Move Data
@@ -213,6 +241,27 @@ const Move MOVE_J_5B = {
         yOffset: 10,
         width: 14,
         height: 20
+    }
+};
+
+// This move is a divekick
+// It is active until the Player touches the ground or hits the Dummy and cancels it into something else
+const Move MOVE_J_214A = {
+    startupFrames: 10,
+    activeFrames: 250,  // This move stays active until the player land on the ground
+    recoveryFrames: 1,
+    hitstunFrames: 64,
+    damage: 12,
+    startupSprite: PLAYER_J_214A_STARTUP,
+    activeSprite: PLAYER_J_214A_ACTIVE,
+    recoverySprite: PLAYER_IDLE,        // This move has no real recovery
+    moveFunction: moveFunctionJ214A,
+    knockback: &knockback_J_214A,
+    hitboxData: ConstHitbox {
+        xOffset: 3,
+        yOffset: 10,
+        width: 13,
+        height: 14
     }
 };
 

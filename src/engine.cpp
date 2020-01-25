@@ -336,7 +336,11 @@ void handleInputBuffer(uint8_t input) {
         }
         else {
             // Airborne moves
-            if (input & CB_A_BUTTON)
+            if (quarterCircleBackDetected && input & CB_A_BUTTON)
+                playerExecuteMove(&player, &MOVE_J_214A);
+            else if (quarterCircleBackDetected && input & CB_B_BUTTON)
+                playerExecuteMove(&player, &MOVE_J_214A);       // Temporary, will be replaced with a new move
+            else if (input & CB_A_BUTTON)
                 playerExecuteMove(&player, &MOVE_J_5A);
             else if (input & CB_B_BUTTON)
                 playerExecuteMove(&player, &MOVE_J_5B);

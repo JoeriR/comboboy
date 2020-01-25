@@ -2,6 +2,33 @@
 #define KNOCKBACKDATA_H
 
 #include "knockback.h"
+#include "engine.h"
+
+void knockbackFunctionJ214A() {
+    if (player.direction)
+        dummy.x += 2;
+    else 
+        dummy.x -= 2;
+
+    ++dummy.y;
+
+    if (dummy.y == 64 - 16) {
+
+        uint8_t horizontalKnockback = 1;
+
+        if (!player.direction)
+            horizontalKnockback = -1;
+
+        dummy.knockback = Knockback {
+            horizontalDistance: horizontalKnockback,
+            verticalDistance: 1,
+            ticksPerFrame: 1,
+            tickLimit: 5,
+            properties: 0,
+            knockbackFunction: nullptr
+        };
+    }
+}
 
 // Positive verticalDistance means the dummy moves upwards
 // Negative verticalDistance means the dummy moves downwards
@@ -57,6 +84,15 @@ Knockback knockback_236A_fireball = {
     tickLimit: 3,
     properties: 0,
     knockbackFunction: nullptr
+};
+
+Knockback knockback_J_214A = {
+    horizontalDistance: 1,
+    verticalDistance: -1,
+    ticksPerFrame: 1,
+    tickLimit: 1,
+    properties: 0,
+    knockbackFunction: knockbackFunctionJ214A
 };
 
 #endif
