@@ -10,16 +10,17 @@
 #include "projectile.h"
 #include "spriteData.h"
 
+// Defines
+#define CB_DIVEKICK_STARTUP_FRAMES 10
+
 // Helper Functions
 void lockForwardsAirMovement(bool doAllowDoubleJump) {
-    if (player.currentMoveFrameCounter == 1) {
-        player.allowDoubleJump = doAllowDoubleJump;
-        
-        if (player.direction)
-            player.jumpDirection = 1;
-        else 
-            player.jumpDirection = -1;
-    }
+    player.allowDoubleJump = doAllowDoubleJump;
+    
+    if (player.direction)
+        player.jumpDirection = 1;
+    else 
+        player.jumpDirection = -1;
 }
 
 // Move Functions
@@ -75,14 +76,18 @@ void moveFunctionHandstandKick() {
         
 }
 
-void moveFunctionJ214A() {
-    if (player.currentMoveFrameCounter == 1)
+// The definition of this function has benn moved to the bottom of this file
+void moveFunctionJ214A();
+
+void moveFunctionJ214ACharged() {
+    if (player.currentMoveFrameCounter == 1) 
         lockForwardsAirMovement(false);
+    
 
     // Put the Player in float state during this move's startup
     if (getMoveState(player.currentMove, player.currentMoveFrameCounter) == MoveState::Startup) 
         player.jumpFrame = JUMP_ASCENDING_FRAMES + JUMP_FLOATING_FRAMES - 3;
-    
+
     // Put the Player in falling state during this move's active frames
     if (getMoveState(player.currentMove, player.currentMoveFrameCounter) == MoveState::Active) {
         player.jumpFrame = JUMP_ASCENDING_FRAMES + JUMP_FLOATING_FRAMES + 5;
@@ -246,11 +251,12 @@ const Move MOVE_J_5B = {
 
 // This move is a divekick
 // It is active until the Player touches the ground or hits the Dummy and cancels it into something else
+// Hold down the A button to charge and perform the charged version instead
 const Move MOVE_J_214A = {
     startupFrames: 10,
     activeFrames: 250,  // This move stays active until the player land on the ground
     recoveryFrames: 1,
-    hitstunFrames: 64,
+    hitstunFrames: 32,
     damage: 12,
     startupSprite: PLAYER_J_214A_STARTUP,
     activeSprite: PLAYER_J_214A_ACTIVE,
@@ -265,6 +271,60 @@ const Move MOVE_J_214A = {
     }
 };
 
+// This move is a divekick
+// It is active until the Player touches the ground or hits the Dummy and cancels it into something else
+// This version of the divekick pushes both the Player and the Dummy all the way to the ground
+const Move MOVE_J_214A_CHARGED = {
+    startupFrames: 6,   // This is added on top of j_214A's startup frames - 1, total startupframes should be 15
+    activeFrames: 250,  // This move stays active until the player land on the ground
+    recoveryFrames: 1,
+    hitstunFrames: 64,
+    damage: 12,
+    startupSprite: PLAYER_J_214A_STARTUP,
+    activeSprite: PLAYER_J_214A_ACTIVE,
+    recoverySprite: PLAYER_IDLE,        // This move has no real recovery
+    moveFunction: moveFunctionJ214ACharged,
+    knockback: &knockback_J_214A_charged,
+    hitboxData: ConstHitbox {
+        xOffset: 3,
+        yOffset: 10,
+        width: 13,
+        height: 14
+    }
+};
+
+void moveFunctionJ214A() {
+    static bool playerIsHoldingA = false;
+
+    if (player.currentMoveFrameCounter == 1) {
+        lockForwardsAirMovement(false);
+        playerIsHoldingA = true;
+    }
+
+    // Put the Player in float state during this move's startup
+    if (getMoveState(player.currentMove, player.currentMoveFrameCounter) == MoveState::Startup) {
+        player.jumpFrame = JUMP_ASCENDING_FRAMES + JUMP_FLOATING_FRAMES - 3;
+
+        // If the Player is not holding A anymore, set playerIsHoldingA to false
+        if (playerIsHoldingA && !(rawInput & CB_A_BUTTON)) {
+            playerIsHoldingA = false;
+            Serial.println("Let go");
+        }
+
+        // If the Player is still holding A on the last startup frame, then execute the instead perform the charged version of this move
+        if (playerIsHoldingA && player.currentMoveFrameCounter == CB_DIVEKICK_STARTUP_FRAMES - 1) {
+            Serial.println("CHARGED");
+            playerExecuteMove(&player, &MOVE_J_214A_CHARGED);
+        }
+    }
+    // Put the Player in falling state during this move's active frames
+    if (getMoveState(player.currentMove, player.currentMoveFrameCounter) == MoveState::Active) {
+        player.jumpFrame = JUMP_ASCENDING_FRAMES + JUMP_FLOATING_FRAMES + 5;
+        player.x += player.jumpDirection * 2;
+        ++player.y;
+    }
+}
+;
 #endif
 
 /*
