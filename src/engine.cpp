@@ -30,6 +30,7 @@ uint8_t hitStunDecay = 0;
 
 uint8_t hitStopFrames = 0;
 
+uint8_t playerInput = 0x00;
 uint8_t inputPrevFrame = 0x00;
 
 bool didPlayerHitMoveThisFrame = false;
@@ -94,7 +95,9 @@ void resetGame() {
 
     hitStopFrames = 0;
 
+    playerInput = 0x00;
     inputPrevFrame = 0x00;
+    rawInput = 0x00;
 
     didPlayerHitMoveThisFrame = false;
 
@@ -585,7 +588,10 @@ void updateComboDisplayTimer() {
     }
 }
 
-void updateGame(uint8_t input) {
+void updateGame(uint8_t input, uint8_t rawInputParam) {
+
+    playerInput = input;
+    rawInput = rawInputParam;
 
     // Force player sprite to be idle if state is idle, just in case
     if (player.state == PlayerState::Idle) {

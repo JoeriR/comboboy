@@ -10,10 +10,14 @@
 
 
 // Functions
-void updateGame(uint8_t input);
+void updateGame(uint8_t input, uint8_t rawInputParam);
 void resetGame();
 
 // Variables
+extern uint8_t playerInput;
+extern uint8_t inputPrevFrame;
+extern uint8_t rawInput;
+
 extern uint16_t comboCounter;
 extern uint16_t comboCounterDisplay;
 extern uint8_t comboDisplayTimerLimit;
