@@ -1,8 +1,8 @@
-Features to add in Version 0.4:
+Features that have been implemented in Version 0.4:
     - Jumping
     - Double jump
     - Air normals: j.5A and j.5B
-    - Air specials: j.236A and j.214A
+    - Air specials: j.214A
     - Side switching
     - Knockback on-hit
     - 214x inputs (quarter circle back)
@@ -10,6 +10,7 @@ Features to add in Version 0.4:
 
 
 Features to add in Version 0.5:
+    - j.236x
     - 623x inputs (DP motion) ???
     - 41236x inputs (half circle forward)
     - A super move (cinematic move)
@@ -24,6 +25,6 @@ Features to add in Version 0.6:
 
 Features to add in Version 0.7:
     - Menus
-    - Settings  (swap A and B buttons around)
+    - Settings  (with an option to swap the A and B buttons around)
     - Highscores and a leaderboard
     - Combo trials?
