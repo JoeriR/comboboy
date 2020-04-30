@@ -6,6 +6,7 @@
 
 void pushIntoBuffer(uint8_t input);
 bool detectQuarterCircleForward();
+bool detectQuarterCircleBack();
 
 void initBuffer();
 

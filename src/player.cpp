@@ -17,7 +17,31 @@ void playerExecuteMove(Player *player, Move const *move) {
     player->currentMove = move;
     player->currentMoveFrameCounter = 0;
     player->currentMoveHit = false; // CARE:
+    player->allowDoubleJump = true;
     player->state = PlayerState::ExecutingMove;
+}
+
+void playerMoveForwards(Player *player, uint8_t pixelsForward) {
+    if (player->direction)
+        player->x += pixelsForward;
+    else
+        player->x -= pixelsForward;
+
+    playerSyncPositionToHitbox(player);
+}
+
+void playerMoveBackwards(Player *player, uint8_t pixelsBackward) {
+    if (player->direction)
+        player->x -= pixelsBackward;
+    else
+        player->x += pixelsBackward;
+
+    playerSyncPositionToHitbox(player);
+}
+
+void playerSyncPositionToHitbox(Player *player) {
+    player->hitbox.x = player->x + PLAYER_HITBOX_X_OFFSET; 
+    player->hitbox.y = player->y + PLAYER_HITBOX_Y_OFFSET;
 }
 
 // crouchFrame decides the PlayerCrouchState that we're in

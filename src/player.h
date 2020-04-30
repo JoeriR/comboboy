@@ -6,6 +6,9 @@
 #include "hitbox.h"
 #include "move.h"
 
+#define PLAYER_HITBOX_X_OFFSET 3
+#define PLAYER_HITBOX_Y_OFFSET 5
+
 #define CROUCH_FRAME_LIMIT 4
 
 #define WALK_1_FRAMES 4
@@ -25,21 +28,30 @@ typedef struct Player {
     uint8_t y;
     int8_t xOffset;
     int8_t yOffset;
+    uint8_t direction;
     Move const *currentMove;
     uint8_t currentMoveFrameCounter;
+    bool currentMoveHit;
     PlayerState state;
     uint8_t crouchFrame;
     uint8_t walkFrame;
     uint8_t jumpFrame;
     int8_t jumpDirection;   // 0 for neutral jump, 1 or -1 for directional jumps
+    bool doubleJumpUsed;
+    bool allowDoubleJump;
     PlayerCrouchState crouchState;
     uint8_t const *sprite;
     Hitbox hitbox;
-    bool currentMoveHit;
 } Player;
 
 void playerSetIdle(Player *player);
 void playerExecuteMove(Player *player, Move const *move);
+
+void playerMoveForwards(Player *player, uint8_t pixelsForward);
+
+void playerMoveBackwards(Player *player, uint8_t pixelsBackward);
+
+void playerSyncPositionToHitbox(Player *player);
 
 PlayerCrouchState getPlayerCrouchState(Player *player, uint8_t input);
 PlayerWalkState updatePlayerWalkFrame(Player *player);

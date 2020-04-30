@@ -6,6 +6,7 @@
 #include "engine.h"
 #include "hitbox.h"
 #include "input.h"
+#include "knockbackData.h"
 #include "move.h"
 #include "moveData.h"
 #include "player.h"
@@ -29,6 +30,9 @@ uint8_t hitStunDecay = 0;
 
 uint8_t hitStopFrames = 0;
 
+uint8_t playerInput = 0x00;
+uint8_t inputPrevFrame = 0x00;
+
 bool didPlayerHitMoveThisFrame = false;
 
 Player player = {
@@ -36,28 +40,33 @@ Player player = {
     y: 64 - 25,
     xOffset: 0,
     yOffset: 0,
+    direction: true,
     currentMove: nullptr,
     currentMoveFrameCounter: 0,
+    currentMoveHit: false,
     state: PlayerState::Idle,
     crouchFrame: 0,
     walkFrame: 0,
     jumpFrame: 0,
     jumpDirection: 0,
+    doubleJumpUsed: false,
+    allowDoubleJump: true,
     crouchState: PlayerCrouchState::Standing,
     sprite: PLAYER_IDLE,
     hitbox: Hitbox {
-        x: 0,
-        y: 0,
-        width: 16,
-        height: 16
+        x: PLAYER_HITBOX_X_OFFSET,
+        y: PLAYER_HITBOX_Y_OFFSET,
+        width: 10,
+        height: 19
     }
 };
 
 Dummy dummy = {
-    x: 96,
+    x: 64,
     y: 64 - 17,
     stunnedFrames: 0,
     recoveryFrames: 0,
+    knockbackTick: 0,
     state: DummyState::Idle,
     sprite: DUMMY_IDLE,
     hitbox: Hitbox {
@@ -65,10 +74,122 @@ Dummy dummy = {
         y: 64 - 17,
         width: 16,
         height: 16
-    }
+    },
+    knockback: knockback_default
 };
 
+void resetGame() {
+    // Initialize vars
+    comboCounter = 0;
+    comboCounterDisplay = 0;
+    comboDisplayTimerLimit = 120;
+    comboDisplayTimer = comboDisplayTimerLimit;
 
+    comboDamage = 0;
+    comboDamageDisplay = 0;
+    comboDamageScale = 100; // in percent
+
+    currentHitDamage = 0;
+
+    hitStunDecay = 0;
+
+    hitStopFrames = 0;
+
+    playerInput = 0x00;
+    inputPrevFrame = 0x00;
+    rawInput = 0x00;
+
+    didPlayerHitMoveThisFrame = false;
+
+    player = {
+        x: 32,
+        y: 64 - 25,
+        xOffset: 0,
+        yOffset: 0,
+        direction: true,
+        currentMove: nullptr,
+        currentMoveFrameCounter: 0,
+        currentMoveHit: false,
+        state: PlayerState::Idle,
+        crouchFrame: 0,
+        walkFrame: 0,
+        jumpFrame: 0,
+        jumpDirection: 0,
+        doubleJumpUsed: false,
+        allowDoubleJump: true,
+        crouchState: PlayerCrouchState::Standing,
+        sprite: PLAYER_IDLE,
+        hitbox: Hitbox {
+            x: PLAYER_HITBOX_X_OFFSET,
+            y: PLAYER_HITBOX_Y_OFFSET,
+            width: 10,
+            height: 19
+        }
+    };
+
+    dummy = {
+        x: 64,
+        y: 64 - 17,
+        stunnedFrames: 0,
+        recoveryFrames: 0,
+        knockbackTick: 0,
+        state: DummyState::Idle,
+        sprite: DUMMY_IDLE,
+        hitbox: Hitbox {
+            x: 96,
+            y: 64 - 17,
+            width: 16,
+            height: 16
+        },
+        knockback: knockback_default
+    };
+}
+
+inline uint8_t getInvertedHorizontalInput(uint8_t input) {
+    uint8_t inputCopy = input;
+
+    // Copy the value of input's left_button bit to inputCopy's right_button bit
+    if (input & CB_LEFT_BUTTON)
+        inputCopy = inputCopy | CB_RIGHT_BUTTON;        // Set the right_button bit to TRUE with a bitmask
+    else
+        inputCopy = inputCopy & (~CB_RIGHT_BUTTON);     // Set the right_button bit to FALSE with a bitmask
+    
+    // Do the same for the value of input's right_button bit
+    if (input & CB_RIGHT_BUTTON)
+        inputCopy = inputCopy | CB_LEFT_BUTTON;
+    else
+        inputCopy = inputCopy & (~CB_LEFT_BUTTON);
+    
+    return inputCopy;
+}
+
+void applyKnockback(Knockback *knockback, Dummy *dummy) {
+    if (knockback->knockbackFunction != nullptr) {
+        knockback->knockbackFunction();
+    }
+    else {
+        dummy->knockbackTick += knockback->ticksPerFrame;
+
+        if (dummy->knockbackTick > knockback->tickLimit) {
+            dummy->x += knockback->horizontalDistance;
+
+            // Apply vertical knockback when the dummy is in the air or when this Knockback has the CB_KB_PROP_LAUNCH property 
+            if (dummy->y < 64 - 17 || knockback->properties & CB_KB_PROP_LAUNCH)
+                dummy->y -= knockback->verticalDistance;
+
+            dummy->knockbackTick = dummy->knockbackTick % knockback->tickLimit;
+        }
+    }
+}
+
+// Decide's the direction which the Player will be facing during this frame
+// This is done by comparing the center of the Player's Hitbox with the center of the Dummy's Hitbox
+inline void updatePlayerDirections() {
+    if (player.direction && player.hitbox.x + player.hitbox.width / 2 > dummy.hitbox.x + dummy.hitbox.width / 2)
+        player.direction = false;
+    else if (player.hitbox.x + player.hitbox.width / 2 < dummy.hitbox.x + dummy.hitbox.width / 2 && dummy.hitbox.x < 200)   // This also takes dummy.hitbox.x underflow in consideration
+        player.direction = true;
+}
 
 void handlePlayerPosition(uint8_t input) {
     PlayerWalkState playerWalkState = PlayerWalkState::Standing;
@@ -78,14 +199,14 @@ void handlePlayerPosition(uint8_t input) {
         return;
 
     // Only allow the player to move if they're not holding down (are crouching)
-    if (!(input & CB_DOWN_BUTTON)) {
-        if (input & CB_RIGHT_BUTTON && player.state != PlayerState::ExecutingMove && player.crouchState != PlayerCrouchState::Crouching) {
-            ++player.x;
+    if (!(input & CB_DOWN_BUTTON) && player.state != PlayerState::ExecutingMove && player.crouchState != PlayerCrouchState::Crouching) {
+        if (input & CB_RIGHT_BUTTON) {
+            playerMoveForwards(&player, 1);
             playerWalkState = updatePlayerWalkFrame(&player);
         }
 
-        if (input & CB_LEFT_BUTTON && player.state != PlayerState::ExecutingMove && player.crouchState != PlayerCrouchState::Crouching) {
-            --player.x;
+        if (input & CB_LEFT_BUTTON) {
+            playerMoveBackwards(&player, 1);
             playerWalkState = updatePlayerWalkFrame(&player);
         }
 
@@ -117,8 +238,13 @@ void handlePlayerCrouching(uint8_t input) {
 }
 
 void handlePlayerLanding() {
-    if (player.jumpFrame > 10 && player.y >= 64 - 25)
+    if (player.jumpFrame > 10 && player.y >= 64 - 25) {
         player.jumpFrame = 0;
+        player.doubleJumpUsed = false;
+
+        // Cancel current move
+        playerSetIdle(&player);
+    }
 }
 
 void handlePlayerJumping(uint8_t input) {
@@ -132,11 +258,18 @@ void handlePlayerJumping(uint8_t input) {
             return;
     }
     else {
+        if (player.doubleJumpUsed == false && player.allowDoubleJump == true && (input & CB_UP_BUTTON) && !(inputPrevFrame & CB_UP_BUTTON)) {
+            player.jumpFrame = 1;
+            player.doubleJumpUsed = true;
+        }
+
         jumpState = updatePlayerJumpFrame(&player);
     }
 
-    if (jumpState != PlayerJumpState::Startup && player.jumpFrame % 4 > 0)
+    if (jumpState != PlayerJumpState::Startup && player.jumpFrame % 4 > 0) {
         player.x += player.jumpDirection;
+        playerSyncPositionToHitbox(&player);
+    }
 
     switch (jumpState) {
         case PlayerJumpState::Startup : 
@@ -149,6 +282,10 @@ void handlePlayerJumping(uint8_t input) {
                 player.jumpDirection = -1;
             else
                 player.jumpDirection = 0;
+
+            // Invert jumpDirection if the player is facing left
+            if (!player.direction)
+                player.jumpDirection *= -1;
 
             break;
         case PlayerJumpState::Ascending : 
@@ -175,13 +312,22 @@ void handleInputBuffer(uint8_t input) {
 
     pushIntoBuffer(input);
 
-    // Check to see if they player is allowed to perform a move
+    // Check to see if the player is allowed to perform a move
     if (player.state != PlayerState::ExecutingMove || player.currentMoveHit) {
         
+        bool quarterCircleBackDetected = detectQuarterCircleBack();
+        bool quarterCircleForwardDetected = detectQuarterCircleForward();   
+
         // Grounded moves
         if (player.jumpFrame == 0) {
-            if (detectQuarterCircleForward() && input & CB_A_BUTTON)
+            if (quarterCircleBackDetected && input & CB_A_BUTTON)
+                playerExecuteMove(&player, &MOVE_HANDSTAND_KICK);
+            else if (quarterCircleBackDetected && input & CB_B_BUTTON)
+                playerExecuteMove(&player, &MOVE_HANDSTAND_KICK);   // Temporary, will be replaced with a new move
+            else if (quarterCircleForwardDetected && input & CB_A_BUTTON)
                 playerExecuteMove(&player, &MOVE_236A);
+            else if (quarterCircleForwardDetected && input & CB_B_BUTTON)
+                playerExecuteMove(&player, &MOVE_236A);             // Temporary, will be replaced with a new move
             else if (input & CB_DOWN_BUTTON && input & CB_A_BUTTON)
                 playerExecuteMove(&player, &MOVE_2A);
             else if (input & CB_A_BUTTON) 
@@ -193,9 +339,14 @@ void handleInputBuffer(uint8_t input) {
         }
         else {
             // Airborne moves
-            // TODO: Implement atleast 1 airborne move (like j.A or j.B)
-            if (input & CB_A_BUTTON)
+            if (quarterCircleBackDetected && input & CB_A_BUTTON)
+                playerExecuteMove(&player, &MOVE_J_214A);
+            else if (quarterCircleBackDetected && input & CB_B_BUTTON)
+                playerExecuteMove(&player, &MOVE_J_214A);       // Temporary, will be replaced with a new move
+            else if (input & CB_A_BUTTON)
                 playerExecuteMove(&player, &MOVE_J_5A);
+            else if (input & CB_B_BUTTON)
+                playerExecuteMove(&player, &MOVE_J_5B);
         }
     }
 }
@@ -242,16 +393,17 @@ void handleProjectiles(uint8_t input) {
     updateFireball(fireballPtr);
 }
 
-// TODO: Currently only works properly when the player is facing right
 bool handlePlayerDummyCollision(Player *player, Dummy *dummy) {
-    bool didPlayerAndDummyCollidePlayerRightSide = isPointInBox(player->x + 16, player->y + 8, &dummy->hitbox) || isPointInBox(player->x + 16, player->y + 16, &dummy->hitbox) || isPointInBox(player->x + 16, player->y + 24, &dummy->hitbox);
-    bool didPlayerAndDummyCollidePlayerLeftSide = isPointInBox(player->x, player->y + 8, &dummy->hitbox) || isPointInBox(player->x, player->y + 16, &dummy->hitbox) || isPointInBox(player->x, player->y + 24, &dummy->hitbox);
+    bool didPlayerAndDummyCollidePlayerRightSide = isPointInBox(player->hitbox.x + player->hitbox.width, player->hitbox.y, &dummy->hitbox) || isPointInBox(player->hitbox.x + player->hitbox.width, player->hitbox.y + player->hitbox.height / 2, &dummy->hitbox) || isPointInBox(player->hitbox.x + player->hitbox.width, player->hitbox.y + player->hitbox.height, &dummy->hitbox);
+    bool didPlayerAndDummyCollidePlayerLeftSide = isPointInBox(player->hitbox.x, player->hitbox.y, &dummy->hitbox) || isPointInBox(player->hitbox.x, player->hitbox.y + player->hitbox.height / 2, &dummy->hitbox) || isPointInBox(player->hitbox.x, player->hitbox.y + player->hitbox.height, &dummy->hitbox);
 
     // Push the player left outside of the dummy if they collide
-    if (didPlayerAndDummyCollidePlayerRightSide)
-        player->x = dummy->x - 16;
-    else if (didPlayerAndDummyCollidePlayerLeftSide)
-        player->x = dummy->x + 16;
+    if (didPlayerAndDummyCollidePlayerRightSide && player->direction)
+        player->x = dummy->x - 17 + PLAYER_HITBOX_X_OFFSET;
+    else if (didPlayerAndDummyCollidePlayerLeftSide && !player->direction)
+        player->x = dummy->x + 17 - PLAYER_HITBOX_X_OFFSET;
+
+    playerSyncPositionToHitbox(player);
 
     return didPlayerAndDummyCollidePlayerRightSide || didPlayerAndDummyCollidePlayerLeftSide;
 }
@@ -263,8 +415,16 @@ void handleCurrentMoveHit(Move const *movePtr = NULL) {
         
     player.currentMoveHit = true;
 
+    player.allowDoubleJump = true;
+
     // Put the dummy in hitstun
     dummy.stunnedFrames = movePtr->hitstunFrames - hitStunDecay;
+
+    // Set knockback on the dummy
+    if (movePtr->knockback != nullptr)
+        setKnockback(movePtr->knockback);
+    else
+        setKnockback(&knockback_default);
 
     // Set hitstop
     hitStopFrames = 15;
@@ -302,8 +462,16 @@ void handleCurrentMoveAndCollision() {
             player.currentMove->moveFunction();
 
         if (getMoveState(player.currentMove, player.currentMoveFrameCounter) == MoveState::Active && !player.currentMoveHit) {
+            
+            // Decide the x position of the Hitbox 
+            uint8_t xPositionHitbox;
+            if (player.direction)
+                xPositionHitbox = player.x + player.currentMove->hitboxData.xOffset;
+            else
+                xPositionHitbox = player.x + 16 - player.currentMove->hitboxData.xOffset - player.currentMove->hitboxData.width;
+            
             Hitbox playerMoveHitbox = {
-                x : player.x + player.currentMove->hitboxData.xOffset,
+                x : xPositionHitbox,
                 y : player.y + player.currentMove->hitboxData.yOffset,
                 width : player.currentMove->hitboxData.width,
                 height : player.currentMove->hitboxData.height
@@ -312,11 +480,15 @@ void handleCurrentMoveAndCollision() {
             dummy.hitbox.x = dummy.x;
             dummy.hitbox.y = dummy.y;
 
+            // Collision detection between the Hitbox and the Dummy
             if (dummy.state != DummyState::Recovery && collision(&playerMoveHitbox, &dummy.hitbox)) {
                 handleCurrentMoveHit();
                 player.sprite = player.currentMove->activeSprite;
             }
         }
+    }
+    else {
+        player.allowDoubleJump = true;
     }
 
     if (dummy.state != DummyState::Recovery && collision(&fireballPtr->hitbox, &dummy.hitbox)) {
@@ -324,6 +496,13 @@ void handleCurrentMoveAndCollision() {
         fireballPtr->despawnAfterHitstop = true;
     }
     
+}
+
+void handleKnockback() {
+    // TODO: improve checks
+    if (dummy.state == DummyState::Hit && dummy.knockback.horizontalDistance != 0) {
+        applyKnockback(&dummy.knockback, &dummy);
+    }
 }
 
 void updateDummy() {
@@ -336,6 +515,10 @@ void updateDummy() {
         if (dummy.stunnedFrames == 0) {
             dummy.state = DummyState::Recovery;
             dummy.recoveryFrames = 60;
+
+            // Reset knockback      TODO: Maybe this should be changed to setKnockback(&knockback_default) ?
+            dummy.knockback.horizontalDistance = 0;
+            dummy.knockback.verticalDistance = 0;
         }
     }
     else if (dummy.recoveryFrames > 0) {
@@ -359,26 +542,34 @@ void updateDummy() {
         default:
             dummy.sprite = DUMMY_IDLE;
     }
+
+    // Apply gravity on the dummy when is not in hitstun
+    if (dummy.state != DummyState::Hit && dummy.y < 64 - 17)
+        dummy.y += 1;
+
+    // Update dummy's hitbox position
+    dummy.hitbox.x = dummy.x;
+    dummy.hitbox.y = dummy.y;
 }
 
 void preventOutofBounds() {
     // Push player inwards towards the screen
-    if (player.x > 128 + 64)
-        player.x = 0;
-    if (player.x > 128 - 16)
-        player.x = 128 - 16;
+    if (player.x > 128 + 64 || player.x == 0)
+        player.x = 1;
+    if (player.x > 128 - 18)
+        player.x = 128 - 18;
     if (player.y > 64 + 64)
-        player.y = 0;
+        player.y = 1;
     if (player.y > 64 - 25)
         player.y = 64 - 25;
 
     // Push dummy inwards towards the screen
-    if (dummy.x > 128 + 64)
-        dummy.x = 0;
-    if (dummy.x > 128 - 16)
-        dummy.x = 128 - 16;
+    if (dummy.x > 128 + 64 || dummy.x == 0)
+        dummy.x = 1;
+    if (dummy.x > 128 - 17)
+        dummy.x = 128 - 17;
     if (dummy.y > 64 + 64)
-        dummy.y = 0;
+        dummy.y = 1;
     if (dummy.y > 64 - 17)
         dummy.y = 64 - 17;
 }
@@ -397,17 +588,35 @@ void updateComboDisplayTimer() {
     }
 }
 
-void updateGame(uint8_t input) {
+void updateGame(uint8_t input, uint8_t rawInputParam) {
+
+    playerInput = input;
+    rawInput = rawInputParam;
 
     // Force player sprite to be idle if state is idle, just in case
     if (player.state == PlayerState::Idle) {
         player.sprite = PLAYER_IDLE;
     }
 
+    updatePlayerDirections();
+
+    // Invert directions if the player is facing left
+    if (!player.direction) {
+        input = getInvertedHorizontalInput(input);
+    }
+
     handleInputBuffer(input);
 
     if (hitStopFrames > 0) {
         --hitStopFrames;
+
+        // Check if the player repressed up during hitstop
+        // And prevent the jump startup frame from being displayed
+        if (player.doubleJumpUsed == false && (input & CB_UP_BUTTON) && !(inputPrevFrame & CB_UP_BUTTON)) {
+            uint8_t const *spriteCopyPtr = player.sprite;
+            handlePlayerJumping(input);
+            player.sprite = spriteCopyPtr;
+        }
     }
     else {
         player.xOffset = 0;
@@ -425,6 +634,8 @@ void updateGame(uint8_t input) {
 
         handleCurrentMoveAndCollision();
 
+        handleKnockback();
+
         updateDummy();
 
         handlePlayerDummyCollision(&player, &dummy);
@@ -432,8 +643,11 @@ void updateGame(uint8_t input) {
         preventOutofBounds();
         
         updateComboDisplayTimer();
+
+        playerSyncPositionToHitbox(&player);
     }
     
+    inputPrevFrame = input;
 }
 
 #endif

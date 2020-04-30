@@ -1,0 +1,30 @@
+Features that have been implemented in Version 0.4:
+    - Jumping
+    - Double jump
+    - Air normals: j.5A and j.5B
+    - Air specials: j.214A
+    - Side switching
+    - Knockback on-hit
+    - 214x inputs (quarter circle back)
+    - Title screen
+
+
+Features to add in Version 0.5:
+    - j.236x
+    - 623x inputs (DP motion) ???
+    - 41236x inputs (half circle forward)
+    - A super move (cinematic move)
+    - Remember moves used in a combo in order to adjust hitstun scaling properly
+    - A throw special
+
+
+Features to add in Version 0.6:
+    - Add in all special moves and supers
+    - Maybe add in some more normals?
+
+
+Features to add in Version 0.7:
+    - Menus
+    - Settings  (with an option to swap the A and B buttons around)
+    - Highscores and a leaderboard
+    - Combo trials?
