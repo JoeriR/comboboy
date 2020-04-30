@@ -30,6 +30,7 @@ const uint8_t FRAME_RATE = 60;
 // Global variables
 uint8_t globalColor = 0;
 uint8_t input = 0x00;
+uint8_t rawInput = 0x00;
 
 ScreenState screenState = ScreenState::DebugInfoScreen;
 
@@ -86,15 +87,29 @@ void handleTitleScreen() {
 // Reads the held buttons and sets the corresponding bits in the input byte
 void updateInput() {
     input = 0x00;
+    rawInput = 0x00;
 
-    if (arduboy.pressed(RIGHT_BUTTON))
+    if (arduboy.pressed(RIGHT_BUTTON)) {
         input += CB_RIGHT_BUTTON;
-    if (arduboy.pressed(LEFT_BUTTON))
+        rawInput += CB_RIGHT_BUTTON;
+    }
+    if (arduboy.pressed(LEFT_BUTTON)) {
         input += CB_LEFT_BUTTON;
-    if (arduboy.pressed(UP_BUTTON))
+        rawInput += CB_LEFT_BUTTON;
+    }
+    if (arduboy.pressed(UP_BUTTON)) {
         input += CB_UP_BUTTON;
-    if (arduboy.pressed(DOWN_BUTTON))
+        rawInput += CB_UP_BUTTON;
+    }
+    if (arduboy.pressed(DOWN_BUTTON)) {
         input += CB_DOWN_BUTTON;
+        rawInput += CB_DOWN_BUTTON;
+    }
+    if (arduboy.pressed(A_BUTTON))
+        rawInput += CB_A_BUTTON;
+    if (arduboy.pressed(B_BUTTON))
+        rawInput += CB_B_BUTTON;
+
     if (arduboy.justPressed(A_BUTTON)) // TEMP: Change it back to pressed() when the input-buffer has been implemented
         input += CB_A_BUTTON;
     if (arduboy.justPressed(B_BUTTON)) // TEMP: See comment above
@@ -144,7 +159,7 @@ void loop() {
         return;
     }
 
-    updateGame(input);
+    updateGame(input, rawInput);
 
     // Print the name of a motion if it's been succesfully executed
     if (detectQuarterCircleBack()) {

@@ -30,6 +30,7 @@ uint8_t hitStunDecay = 0;
 
 uint8_t hitStopFrames = 0;
 
+uint8_t playerInput = 0x00;
 uint8_t inputPrevFrame = 0x00;
 
 bool didPlayerHitMoveThisFrame = false;
@@ -94,7 +95,9 @@ void resetGame() {
 
     hitStopFrames = 0;
 
+    playerInput = 0x00;
     inputPrevFrame = 0x00;
+    rawInput = 0x00;
 
     didPlayerHitMoveThisFrame = false;
 
@@ -336,7 +339,11 @@ void handleInputBuffer(uint8_t input) {
         }
         else {
             // Airborne moves
-            if (input & CB_A_BUTTON)
+            if (quarterCircleBackDetected && input & CB_A_BUTTON)
+                playerExecuteMove(&player, &MOVE_J_214A);
+            else if (quarterCircleBackDetected && input & CB_B_BUTTON)
+                playerExecuteMove(&player, &MOVE_J_214A);       // Temporary, will be replaced with a new move
+            else if (input & CB_A_BUTTON)
                 playerExecuteMove(&player, &MOVE_J_5A);
             else if (input & CB_B_BUTTON)
                 playerExecuteMove(&player, &MOVE_J_5B);
@@ -581,7 +588,10 @@ void updateComboDisplayTimer() {
     }
 }
 
-void updateGame(uint8_t input) {
+void updateGame(uint8_t input, uint8_t rawInputParam) {
+
+    playerInput = input;
+    rawInput = rawInputParam;
 
     // Force player sprite to be idle if state is idle, just in case
     if (player.state == PlayerState::Idle) {
