@@ -253,7 +253,7 @@ const Move MOVE_J_5B = {
 // It is active until the Player touches the ground or hits the Dummy and cancels it into something else
 // Hold down the A button to charge and perform the charged version instead
 const Move MOVE_J_214A = {
-    startupFrames: 10,
+    startupFrames: CB_DIVEKICK_STARTUP_FRAMES,
     activeFrames: 250,  // This move stays active until the player land on the ground
     recoveryFrames: 1,
     hitstunFrames: 32,
@@ -275,8 +275,8 @@ const Move MOVE_J_214A = {
 // It is active until the Player touches the ground or hits the Dummy and cancels it into something else
 // This version of the divekick pushes both the Player and the Dummy all the way to the ground
 const Move MOVE_J_214A_CHARGED = {
-    startupFrames: 6,   // This is added on top of j_214A's startup frames - 1, total startupframes should be 15
-    activeFrames: 250,  // This move stays active until the player land on the ground
+    startupFrames: 18 - CB_DIVEKICK_STARTUP_FRAMES,   // This move can only be executed after the startup of J.214A, therefore those active frames are subtracted here. Total startupframes should be 18
+    activeFrames: 250,  // This move stays active until the player lands on the ground
     recoveryFrames: 1,
     hitstunFrames: 64,
     damage: 12,
@@ -313,7 +313,7 @@ void moveFunctionJ214A() {
 
         // If the Player is still holding A on the last startup frame, then execute the instead perform the charged version of this move
         if (playerIsHoldingA && player.currentMoveFrameCounter == CB_DIVEKICK_STARTUP_FRAMES - 1) {
-            Serial.println("CHARGED");
+            Serial.println("j.214A CHARGED");
             playerExecuteMove(&player, &MOVE_J_214A_CHARGED);
         }
     }
