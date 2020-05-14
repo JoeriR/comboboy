@@ -90,7 +90,6 @@ Knockback knockback_236A_fireball = {
     knockbackFunction: nullptr
 };
 
-// TODO: Tweak these numbers
 Knockback knockback_J_214A = {
     horizontalDistance: 2,
     verticalDistance: -1,

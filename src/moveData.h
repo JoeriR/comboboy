@@ -76,7 +76,7 @@ void moveFunctionHandstandKick() {
         
 }
 
-// The definition of this function has benn moved to the bottom of this file
+// The definition of this function has been moved to the bottom of this file
 void moveFunctionJ214A();
 
 void moveFunctionJ214ACharged() {
@@ -306,25 +306,22 @@ void moveFunctionJ214A() {
         player.jumpFrame = JUMP_ASCENDING_FRAMES + JUMP_FLOATING_FRAMES - 3;
 
         // If the Player is not holding A anymore, set playerIsHoldingA to false
-        if (playerIsHoldingA && !(rawInput & CB_A_BUTTON)) {
+        if (playerIsHoldingA && !(rawInput & CB_A_BUTTON)) 
             playerIsHoldingA = false;
-            Serial.println("Let go");
-        }
 
         // If the Player is still holding A on the last startup frame, then execute the instead perform the charged version of this move
-        if (playerIsHoldingA && player.currentMoveFrameCounter == CB_DIVEKICK_STARTUP_FRAMES - 1) {
-            Serial.println("j.214A CHARGED");
+        if (playerIsHoldingA && player.currentMoveFrameCounter == CB_DIVEKICK_STARTUP_FRAMES - 1) 
             playerExecuteMove(&player, &MOVE_J_214A_CHARGED);
-        }
     }
+
     // Put the Player in falling state during this move's active frames
     if (getMoveState(player.currentMove, player.currentMoveFrameCounter) == MoveState::Active) {
         player.jumpFrame = JUMP_ASCENDING_FRAMES + JUMP_FLOATING_FRAMES + 5;
         player.x += player.jumpDirection * 2;
         ++player.y;
     }
-}
-;
+};
+
 #endif
 
 /*
