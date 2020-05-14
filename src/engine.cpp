@@ -417,9 +417,15 @@ void handleCurrentMoveHit(Move const *movePtr = NULL) {
 
     player.allowDoubleJump = true;
 
-    // Put the dummy in hitstun
-    dummy.stunnedFrames = movePtr->hitstunFrames - hitStunDecay;
+    uint8_t hitstunFrames = movePtr->hitstunFrames;
+    uint8_t hitstunFramesMinusDecay = movePtr->hitstunFrames - hitStunDecay;
 
+    // Put the dummy in hitstun (with underflow check)
+    if (hitstunFrames > hitstunFramesMinusDecay) 
+        dummy.stunnedFrames = 2;    // underflow occured, set stunnedFrames to 2
+    else 
+        dummy.stunnedFrames = hitstunFramesMinusDecay;
+   
     // Set knockback on the dummy
     if (movePtr->knockback != nullptr)
         setKnockback(movePtr->knockback);
